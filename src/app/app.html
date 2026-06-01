@@ -38,7 +38,6 @@
         >
           <mat-radio-button value="double">Double</mat-radio-button>
           <mat-radio-button value="single">Single</mat-radio-button>
-          <mat-radio-button value="backtick">Backtick</mat-radio-button>
         </mat-radio-group>
 
         <mat-checkbox
@@ -160,6 +159,9 @@
         <button mat-stroked-button type="button" (click)="deduplicateRows()">
           Deduplicate rows
         </button>
+        <button mat-stroked-button type="button" (click)="removeEmptyRows()">
+          Remove empty rows
+        </button>
         <button mat-stroked-button type="button" (click)="sortRows()">
           Sort rows
         </button>
@@ -176,6 +178,19 @@
           }
         </div>
         <span>Use Clear edge whitespace to fix.</span>
+      </div>
+    }
+
+    @if (inputInsights().blankLineRows.length) {
+      <div class="input-warning" role="status">
+        <strong>Empty rows detected</strong>
+        <span>Rows:</span>
+        <div class="row-chip-list" aria-label="Empty rows">
+          @for (rowNumber of inputInsights().blankLineRows; track rowNumber) {
+            <span class="row-chip">{{ rowNumber }}</span>
+          }
+        </div>
+        <span>Use Remove empty rows to fix.</span>
       </div>
     }
 

@@ -19,12 +19,11 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
-type QuoteType = 'double' | 'single' | 'backtick';
+type QuoteType = 'double' | 'single';
 
 const QUOTE_BY_TYPE: Record<QuoteType, string> = {
   double: '"',
   single: "'",
-  backtick: '`',
 };
 
 @Component({
@@ -176,6 +175,30 @@ export class App {
     );
   }
 
+  protected removeEmptyRows(): void {
+    let removedRows = 0;
+
+    this.inputText.update((value) =>
+      value
+        .split(/\r?\n/)
+        .filter((row) => {
+          if (!row.trim()) {
+            removedRows += 1;
+            return false;
+          }
+
+          return true;
+        })
+        .join('\n'),
+    );
+
+    this.showMessage(
+      removedRows
+        ? `Removed ${removedRows} empty row${removedRows === 1 ? '' : 's'}.`
+        : 'No empty rows found.',
+    );
+  }
+
   protected sortRows(): void {
     this.inputText.update((value) =>
       value
@@ -198,11 +221,13 @@ export class App {
 
   private getInputInsights(): {
     blankLines: number;
+    blankLineRows: number[];
     duplicateRows: number;
     whitespaceRows: number[];
   } {
     const rows = this.inputText().split(/\r?\n/);
     const seen = new Map<string, number>();
+    const blankLineRows: number[] = [];
     const whitespaceRows: number[] = [];
     let blankLines = 0;
     let duplicateRows = 0;
@@ -213,6 +238,7 @@ export class App {
       if (!trimmed) {
         if (row.length > 0 || rows.length > 1) {
           blankLines += 1;
+          blankLineRows.push(index + 1);
         }
         return;
       }
@@ -230,6 +256,7 @@ export class App {
 
     return {
       blankLines,
+      blankLineRows,
       duplicateRows,
       whitespaceRows,
     };
