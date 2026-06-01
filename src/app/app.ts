@@ -1,4 +1,12 @@
-import { Component, HostListener, computed, inject, signal } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  HostListener,
+  computed,
+  inject,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -39,6 +47,7 @@ const QUOTE_BY_TYPE: Record<QuoteType, string> = {
 })
 export class App {
   private readonly snackBar = inject(MatSnackBar);
+  private readonly inputTextarea = viewChild<ElementRef<HTMLTextAreaElement>>('inputTextarea');
 
   protected readonly inputText = signal('');
   protected readonly quoteType = signal<QuoteType>('double');
@@ -90,10 +99,15 @@ export class App {
 
   protected async pasteInput(): Promise<void> {
     try {
+      if (!navigator.clipboard?.readText) {
+        throw new Error('Clipboard API unavailable.');
+      }
+
       const text = await navigator.clipboard?.readText();
       this.inputText.set(text ?? '');
     } catch {
-      this.showMessage('Browser blocked clipboard access. Click inside the input and use Cmd+V.');
+      this.inputTextarea()?.nativeElement.focus();
+      this.showMessage('Browser blocked clipboard access. The input is focused; press Cmd+V to paste.');
     }
   }
 
