@@ -214,6 +214,9 @@ mat-card-title {
   font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
   font-size: var(--editor-font-size);
   line-height: var(--editor-line-height);
+  white-space: pre;
+  word-break: normal;
+  overflow-wrap: normal;
 }
 
 .secondary-tools {

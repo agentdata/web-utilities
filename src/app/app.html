@@ -84,6 +84,8 @@
               #inputTextarea
               class="code-textarea"
               rows="16"
+              wrap="off"
+              spellcheck="false"
               [ngModel]="inputText()"
               (ngModelChange)="inputText.set($event)"
               (scroll)="setInputScroll($event)"
@@ -126,6 +128,8 @@
             <textarea
               class="code-textarea"
               rows="16"
+              wrap="off"
+              spellcheck="false"
               [value]="resultText()"
               (scroll)="setResultScroll($event)"
               readonly
