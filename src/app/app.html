@@ -1,0 +1,220 @@
+<mat-toolbar class="top-nav" [class.top-nav--hidden]="isNavHidden()">
+  <div class="brand">
+    <img class="brand-mark" src="brand-icon.svg" alt="" width="36" height="36" />
+    <span>Web Utilities</span>
+  </div>
+
+  <nav class="utility-tabs" mat-tab-nav-bar [tabPanel]="tabPanel" aria-label="Utility tabs">
+    <a mat-tab-link active>Add Quotes</a>
+  </nav>
+</mat-toolbar>
+
+<mat-tab-nav-panel #tabPanel></mat-tab-nav-panel>
+
+<main class="page-shell">
+  <section class="hero">
+    <div>
+      <p class="eyebrow">Text formatter</p>
+      <h1>Add quotes to text</h1>
+      <p class="lede">
+        Wrap every row in quotes, optionally add commas, and copy a clean result.
+      </p>
+    </div>
+  </section>
+
+  <section class="tool-surface" aria-labelledby="quote-tool-title">
+    <div class="tool-header">
+      <div>
+        <p class="eyebrow">Quote builder</p>
+        <h2 id="quote-tool-title">Format rows</h2>
+      </div>
+
+      <div class="controls">
+        <mat-radio-group
+          class="quote-options"
+          aria-label="Quote type"
+          [ngModel]="quoteType()"
+          (ngModelChange)="quoteType.set($event)"
+        >
+          <mat-radio-button value="double">Double</mat-radio-button>
+          <mat-radio-button value="single">Single</mat-radio-button>
+          <mat-radio-button value="backtick">Backtick</mat-radio-button>
+        </mat-radio-group>
+
+        <mat-checkbox
+          [ngModel]="addCommas()"
+          (ngModelChange)="addCommas.set($event)"
+        >
+          Add commas
+        </mat-checkbox>
+
+        <mat-checkbox
+          [disabled]="!addCommas()"
+          [ngModel]="omitLastComma()"
+          (ngModelChange)="omitLastComma.set($event)"
+        >
+          Omit last comma
+        </mat-checkbox>
+      </div>
+    </div>
+
+    <div class="editor-grid">
+      <mat-card appearance="outlined" class="editor-card">
+        <mat-card-header>
+          <mat-card-title>Input</mat-card-title>
+          <span class="spacer"></span>
+          <button mat-button type="button" (click)="pasteInput()">Paste</button>
+          <button mat-button type="button" (click)="clearInput()">Clear</button>
+        </mat-card-header>
+
+        <mat-card-content>
+          <label class="code-field">
+            <div class="line-gutter" aria-hidden="true">
+              <div
+                class="line-gutter-inner"
+                [style.transform]="'translateY(-' + inputScrollTop() + 'px)'"
+              >
+                @for (lineNumber of inputLineNumbers(); track lineNumber) {
+                  <span>{{ lineNumber }}</span>
+                }
+              </div>
+            </div>
+
+            <textarea
+              class="code-textarea"
+              rows="16"
+              [ngModel]="inputText()"
+              (ngModelChange)="inputText.set($event)"
+              (scroll)="setInputScroll($event)"
+              placeholder="alpha&#10;bravo&#10;charlie"
+            ></textarea>
+          </label>
+
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card appearance="outlined" class="editor-card">
+        <mat-card-header>
+          <mat-card-title>Result</mat-card-title>
+          <span class="spacer"></span>
+          <button
+            mat-flat-button
+            color="primary"
+            type="button"
+            class="copy-button"
+            [class.copy-button--copied]="copied()"
+            (click)="copyResult()"
+          >
+            {{ copied() ? 'Copied' : 'Copy' }}
+          </button>
+        </mat-card-header>
+
+        <mat-card-content>
+          <label class="code-field">
+            <div class="line-gutter" aria-hidden="true">
+              <div
+                class="line-gutter-inner"
+                [style.transform]="'translateY(-' + resultScrollTop() + 'px)'"
+              >
+                @for (lineNumber of resultLineNumbers(); track lineNumber) {
+                  <span>{{ lineNumber }}</span>
+                }
+              </div>
+            </div>
+
+            <textarea
+              class="code-textarea"
+              rows="16"
+              [value]="resultText()"
+              (scroll)="setResultScroll($event)"
+              readonly
+            ></textarea>
+          </label>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <div class="secondary-tools" aria-label="Input cleanup tools">
+      <div>
+        <strong>Cleanup</strong>
+        <span>Optional input transforms before formatting.</span>
+      </div>
+
+      <div class="secondary-actions">
+        <button
+          mat-stroked-button
+          type="button"
+          matTooltip="Removes double quotes, single quotes, backticks, and commas from the input."
+          (click)="removeQuotesAndCommas()"
+        >
+          Remove quotes/commas
+        </button>
+        <button mat-stroked-button type="button" (click)="trimRows()">
+          Clear edge whitespace
+        </button>
+        <button mat-stroked-button type="button" (click)="deduplicateRows()">
+          Deduplicate rows
+        </button>
+        <button mat-stroked-button type="button" (click)="sortRows()">
+          Sort rows
+        </button>
+      </div>
+    </div>
+
+    @if (inputInsights().whitespaceRows.length) {
+      <div class="input-warning" role="status">
+        <strong>Whitespace detected</strong>
+        <span>Rows:</span>
+        <div class="row-chip-list" aria-label="Rows with surrounding whitespace">
+          @for (rowNumber of inputInsights().whitespaceRows; track rowNumber) {
+            <span class="row-chip">{{ rowNumber }}</span>
+          }
+        </div>
+        <span>Use Clear edge whitespace to fix.</span>
+      </div>
+    }
+
+    <div class="stats-grid" aria-label="Text statistics">
+      <mat-card appearance="outlined" class="stat-card">
+        <span>Input rows</span>
+        <strong>{{ inputStats().rows }}</strong>
+      </mat-card>
+      <mat-card appearance="outlined" class="stat-card">
+        <span>Input characters</span>
+        <strong>{{ inputStats().characters }}</strong>
+      </mat-card>
+      <mat-card appearance="outlined" class="stat-card">
+        <span>Duplicate rows</span>
+        <strong>{{ inputInsights().duplicateRows }}</strong>
+      </mat-card>
+      <mat-card appearance="outlined" class="stat-card">
+        <span>Blank lines</span>
+        <strong>{{ inputInsights().blankLines }}</strong>
+      </mat-card>
+      <mat-card appearance="outlined" class="stat-card">
+        <span>Result rows</span>
+        <strong>{{ resultStats().rows }}</strong>
+      </mat-card>
+      <mat-card appearance="outlined" class="stat-card">
+        <span>Result characters</span>
+        <strong>{{ resultStats().characters }}</strong>
+      </mat-card>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div>
+      <strong>Web Utilities</strong>
+      <p>Small browser-based tools for everyday text cleanup and formatting.</p>
+    </div>
+
+    <div class="footer-meta" aria-label="Site details">
+      <span>No signup</span>
+      <span>Runs in your browser</span>
+      <span>Built by agentdata</span>
+      <span>&copy; 2026 Web Utilities</span>
+    </div>
+  </div>
+</footer>
