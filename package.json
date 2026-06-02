@@ -5,6 +5,7 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
+    "deploy": "npx wrangler deploy --assets ./dist/web-utilities/browser",
     "build:gh-pages": "ng build --base-href /web-utilities/",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"

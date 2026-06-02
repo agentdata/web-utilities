@@ -36,15 +36,15 @@ ng build
 
 This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
 
-## Cloudflare Pages
+## Cloudflare Workers Static Assets
 
-For Cloudflare Pages Git integration, configure the dashboard with:
+For Cloudflare Workers Static Assets, configure the dashboard with:
 
 - Build command: `npm run build`
-- Build output directory: `dist/web-utilities/browser`
+- Deploy command: `npx wrangler deploy --assets ./dist/web-utilities/browser`
 - Production branch: `main`
 
-Leave any deploy command field blank. The output directory belongs in the output directory field, not in a command field.
+The deploy command must stay on one line. The `wrangler.jsonc` file sets the required `compatibility_date`, the static assets directory, and SPA fallback behavior.
 
 ## Running unit tests
 
