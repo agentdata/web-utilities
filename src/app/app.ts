@@ -20,6 +20,31 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
 type QuoteType = 'double' | 'single';
+type UtilityTab = 'quotes' | 'password';
+type PasswordSide = 'left' | 'right';
+type PasswordCategory = 'lowercase' | 'uppercase' | 'numbers' | 'symbols';
+type PasswordStyle = 'random' | 'smooth' | 'passphrase';
+type DisruptionPlacement = 'start' | 'custom' | 'end';
+type EndingPattern = 'none' | 'bangNumber' | 'bangTwoNumbers' | 'custom';
+type PassphraseJoin = 'none' | 'hyphen' | 'dot';
+type CapitalizationStyle = 'lowercase' | 'title' | 'camel';
+
+type PasswordChar = {
+  value: string;
+  side: PasswordSide;
+  category: PasswordCategory;
+};
+
+type TypingResult = {
+  matchedCharacters: number;
+  accuracy: number;
+  progress: number;
+  speed: number;
+  isComplete: boolean;
+  nextCharacter: string;
+  nextSide: PasswordSide | 'done';
+  mistypedCharacters: number;
+};
 
 const QUOTE_BY_TYPE: Record<QuoteType, string> = {
   double: '"',
@@ -30,6 +55,298 @@ const EDITOR_LINE_HEIGHT = 23;
 const EDITOR_VERTICAL_PADDING = 12;
 const GUTTER_RENDER_BUFFER = 6;
 const MAX_REPORTED_ROW_NUMBERS = 200;
+const AMBIGUOUS_CHARACTERS = new Set(['0', 'O', 'o', '1', 'l', 'I']);
+const PASSWORD_CHARS: PasswordChar[] = [
+  ...'qwertasdfgzxcvb'
+    .split('')
+    .map((value) => ({ value, side: 'left' as const, category: 'lowercase' as const })),
+  ...'yuiophjklnm'
+    .split('')
+    .map((value) => ({ value, side: 'right' as const, category: 'lowercase' as const })),
+  ...'QWERTASDFGZXCVB'
+    .split('')
+    .map((value) => ({ value, side: 'left' as const, category: 'uppercase' as const })),
+  ...'YUIOPHJKLNM'
+    .split('')
+    .map((value) => ({ value, side: 'right' as const, category: 'uppercase' as const })),
+  ...'12345'
+    .split('')
+    .map((value) => ({ value, side: 'left' as const, category: 'numbers' as const })),
+  ...'67890'
+    .split('')
+    .map((value) => ({ value, side: 'right' as const, category: 'numbers' as const })),
+  ...'!@#$%'
+    .split('')
+    .map((value) => ({ value, side: 'left' as const, category: 'symbols' as const })),
+  ...'^&*()-_=+[]{};:,.<>/?'
+    .split('')
+    .map((value) => ({ value, side: 'right' as const, category: 'symbols' as const })),
+];
+const PHONETIC_CONSONANTS = PASSWORD_CHARS.filter(
+  (character) =>
+    character.category === 'lowercase' &&
+    !'aeiouy'.includes(character.value) &&
+    !AMBIGUOUS_CHARACTERS.has(character.value),
+);
+const PHONETIC_VOWELS = PASSWORD_CHARS.filter(
+  (character) =>
+    character.category === 'lowercase' &&
+    'aeiouy'.includes(character.value) &&
+    !AMBIGUOUS_CHARACTERS.has(character.value),
+);
+const BASE_PASSPHRASE_WORDS = [
+  'able',
+  'acorn',
+  'amber',
+  'anchor',
+  'apron',
+  'atlas',
+  'autumn',
+  'basil',
+  'beacon',
+  'binder',
+  'blaze',
+  'bright',
+  'brook',
+  'cabin',
+  'canvas',
+  'cedar',
+  'cinder',
+  'clover',
+  'cobalt',
+  'copper',
+  'coral',
+  'cradle',
+  'crisp',
+  'cubic',
+  'daisy',
+  'delta',
+  'duel',
+  'dual',
+  'dune',
+  'ember',
+  'ever',
+  'falcon',
+  'fable',
+  'flint',
+  'forest',
+  'frost',
+  'fuel',
+  'garden',
+  'glade',
+  'grain',
+  'grove',
+  'hale',
+  'harbor',
+  'hazel',
+  'honey',
+  'honor',
+  'ivory',
+  'jape',
+  'jewel',
+  'kale',
+  'kernel',
+  'lantern',
+  'lemon',
+  'lunar',
+  'maple',
+  'marble',
+  'meadow',
+  'mellow',
+  'melon',
+  'mesa',
+  'meteor',
+  'mint',
+  'moss',
+  'nectar',
+  'nova',
+  'olive',
+  'orbit',
+  'opal',
+  'orchid',
+  'paddle',
+  'paper',
+  'pepper',
+  'plaza',
+  'prairie',
+  'quartz',
+  'raven',
+  'reed',
+  'river',
+  'robin',
+  'rocket',
+  'rose',
+  'saffron',
+  'sage',
+  'silver',
+  'solar',
+  'spruce',
+  'stone',
+  'summit',
+  'sunset',
+  'thistle',
+  'timber',
+  'topaz',
+  'tulip',
+  'umber',
+  'valley',
+  'velvet',
+  'violet',
+  'walnut',
+  'willow',
+  'winter',
+  'zebra',
+];
+const EXTRA_PASSPHRASE_WORDS = [
+  'adobe',
+  'agile',
+  'alder',
+  'alpine',
+  'amble',
+  'archer',
+  'ashlar',
+  'avenue',
+  'bamboo',
+  'barley',
+  'basalt',
+  'bayou',
+  'berry',
+  'bison',
+  'boulder',
+  'branch',
+  'breeze',
+  'briar',
+  'bronze',
+  'canyon',
+  'cargo',
+  'chapel',
+  'citrus',
+  'comet',
+  'cotton',
+  'creek',
+  'crystal',
+  'desert',
+  'emberfield',
+  'fennel',
+  'fjord',
+  'flame',
+  'flora',
+  'galaxy',
+  'granite',
+  'gravel',
+  'hearth',
+  'hemlock',
+  'horizon',
+  'inlet',
+  'island',
+  'jasmine',
+  'jasper',
+  'juniper',
+  'lagoon',
+  'laurel',
+  'linen',
+  'lotus',
+  'magnet',
+  'mango',
+  'maplewood',
+  'matrix',
+  'meadowlark',
+  'meridian',
+  'mineral',
+  'misty',
+  'mosaic',
+  'oakwood',
+  'obsidian',
+  'ocean',
+  'olivewood',
+  'orchard',
+  'pebble',
+  'pine',
+  'plume',
+  'polar',
+  'pollen',
+  'prism',
+  'quarry',
+  'quartzite',
+  'radius',
+  'rain',
+  'ravenwood',
+  'ripple',
+  'salt',
+  'satin',
+  'shadow',
+  'shale',
+  'signal',
+  'slate',
+  'solstice',
+  'sparrow',
+  'spice',
+  'spiral',
+  'spring',
+  'starling',
+  'stream',
+  'summer',
+  'talon',
+  'temple',
+  'thunder',
+  'tidal',
+  'tundra',
+  'valleywood',
+  'vapor',
+  'velvetine',
+  'vernal',
+  'vista',
+  'walnutwood',
+  'wander',
+  'willowisp',
+  'woodland',
+  'zircon',
+];
+const PASSPHRASE_WORDS = [...new Set([...BASE_PASSPHRASE_WORDS, ...EXTRA_PASSPHRASE_WORDS])];
+const ALTERNATING_PASSPHRASE_WORDS = PASSPHRASE_WORDS.filter(
+  (word) => getAlternationBreakRatio(word) <= 0.55,
+);
+const AWKWARD_CHARACTERS = new Set(['q', 'Q', 'p', 'P', 'z', 'Z', '/', '?', '[', ']', '{', '}']);
+
+function getCharacterSide(character: string): PasswordSide {
+  return PASSWORD_CHARS.find((entry) => entry.value === character)?.side ?? 'right';
+}
+
+function getAlternationBreakRatio(value: string): number {
+  const rhythm = value
+    .split('')
+    .filter((character) => /[a-z]/i.test(character))
+    .map((character) => getCharacterSide(character));
+
+  if (rhythm.length < 2) {
+    return 0;
+  }
+
+  let breaks = 0;
+  for (let index = 1; index < rhythm.length; index += 1) {
+    if (rhythm[index] === rhythm[index - 1]) {
+      breaks += 1;
+    }
+  }
+
+  return breaks / (rhythm.length - 1);
+}
+
+function getAlternationBreakCount(value: string): number {
+  const rhythm = value
+    .split('')
+    .filter((character) => /[a-z]/i.test(character))
+    .map((character) => getCharacterSide(character));
+  let breaks = 0;
+
+  for (let index = 1; index < rhythm.length; index += 1) {
+    if (rhythm[index] === rhythm[index - 1]) {
+      breaks += 1;
+    }
+  }
+
+  return breaks;
+}
 
 type TextStats = {
   rows: number;
@@ -70,16 +387,43 @@ export class App {
   private readonly inputTextarea = viewChild<ElementRef<HTMLTextAreaElement>>('inputTextarea');
 
   protected readonly inputText = signal('');
+  protected readonly activeUtility = signal<UtilityTab>('quotes');
   protected readonly quoteType = signal<QuoteType>('double');
   protected readonly addCommas = signal(true);
   protected readonly omitLastComma = signal(true);
   protected readonly copied = signal(false);
+  protected readonly passwordCopied = signal(false);
+  protected readonly generatedPassword = signal('');
+  protected readonly passwordLength = signal(18);
+  protected readonly includeLowercase = signal(true);
+  protected readonly includeUppercase = signal(true);
+  protected readonly includeNumbers = signal(true);
+  protected readonly includeSymbols = signal(true);
+  protected readonly alternateHands = signal(true);
+  protected readonly passwordStyle = signal<PasswordStyle>('passphrase');
+  protected readonly smoothness = signal(80);
+  protected readonly passphraseWordCount = signal(3);
+  protected readonly passphraseJoin = signal<PassphraseJoin>('none');
+  protected readonly capitalizationStyle = signal<CapitalizationStyle>('camel');
+  protected readonly endingPattern = signal<EndingPattern>('bangNumber');
+  protected readonly numberCharacterCount = signal(1);
+  protected readonly symbolCharacterCount = signal(1);
+  protected readonly disruptionPosition = signal(70);
+  protected readonly numberPlacement = signal<DisruptionPlacement>('end');
+  protected readonly symbolPlacement = signal<DisruptionPlacement>('end');
+  protected readonly avoidAmbiguous = signal(true);
+  protected readonly avoidAwkwardKeys = signal(true);
+  protected readonly typingInput = signal('');
+  protected readonly typingStartedAt = signal(0);
+  protected readonly typingElapsedMs = signal(0);
   protected readonly isNavHidden = signal(false);
   protected readonly inputScrollTop = signal(0);
   protected readonly resultScrollTop = signal(0);
 
   private lastScrollY = 0;
   private copiedTimer: ReturnType<typeof setTimeout> | undefined;
+  private passwordCopiedTimer: ReturnType<typeof setTimeout> | undefined;
+  private recentPassphraseWords: string[] = [];
 
   protected readonly resultText = computed(() => {
     const inputText = this.inputText();
@@ -107,6 +451,73 @@ export class App {
   protected readonly inputStats = computed(() => this.getStats(this.inputText()));
   protected readonly resultStats = computed(() => this.getStats(this.resultText()));
   protected readonly inputInsights = computed(() => this.getInputInsights());
+  protected readonly selectedPasswordCategories = computed(() => {
+    const categories: PasswordCategory[] = [];
+
+    if (this.includeLowercase()) {
+      categories.push('lowercase');
+    }
+    if (this.includeUppercase()) {
+      categories.push('uppercase');
+    }
+    if (this.includeNumbers()) {
+      categories.push('numbers');
+    }
+    if (this.includeSymbols()) {
+      categories.push('symbols');
+    }
+
+    return categories;
+  });
+  protected readonly passwordStrengthLabel = computed(() => {
+    const entropy = this.estimatedEntropy();
+
+    if (entropy >= 96) {
+      return 'Excellent';
+    }
+    if (entropy >= 72) {
+      return 'Strong';
+    }
+    if (entropy >= 48) {
+      return 'Solid';
+    }
+    return 'Light';
+  });
+  protected readonly typingResult = computed<TypingResult>(() => {
+    const target = this.generatedPassword();
+    const input = this.typingInput();
+    const elapsedSeconds = this.typingElapsedMs() > 0 ? this.typingElapsedMs() / 1000 : 0;
+    let matchedCharacters = 0;
+    let mistypedCharacters = 0;
+
+    for (let index = 0; index < input.length; index += 1) {
+      if (input[index] === target[index]) {
+        matchedCharacters += 1;
+      } else {
+        mistypedCharacters += 1;
+      }
+    }
+
+    const progress = target.length ? Math.min(input.length / target.length, 1) : 0;
+    const accuracy = input.length ? Math.round((matchedCharacters / input.length) * 100) : 100;
+    const nextCharacter = target[input.length] ?? '';
+
+    return {
+      matchedCharacters,
+      accuracy,
+      progress,
+      speed: elapsedSeconds ? Math.round((matchedCharacters / elapsedSeconds) * 60) : 0,
+      isComplete: target.length > 0 && input === target,
+      nextCharacter,
+      nextSide: nextCharacter ? this.getKeySide(nextCharacter) : 'done',
+      mistypedCharacters,
+    };
+  });
+  protected readonly passwordRhythm = computed(() =>
+    this.generatedPassword()
+      .split('')
+      .map((character) => this.getKeySide(character)),
+  );
   protected readonly inputLineNumbers = computed(() =>
     this.getVisibleLineNumbers(this.inputStats().rows, this.inputScrollTop()),
   );
@@ -119,6 +530,10 @@ export class App {
   protected readonly resultGutterOffset = computed(() =>
     this.getGutterOffset(this.resultLineNumbers()[0] ?? 1, this.resultScrollTop()),
   );
+
+  constructor() {
+    this.generatePassword();
+  }
 
   @HostListener('window:scroll')
   protected onWindowScroll(): void {
@@ -141,7 +556,9 @@ export class App {
       this.inputText.set(text ?? '');
     } catch {
       this.inputTextarea()?.nativeElement.focus();
-      this.showMessage('Browser blocked clipboard access. The input is focused; press Cmd+V to paste.');
+      this.showMessage(
+        'Browser blocked clipboard access. The input is focused; press Cmd+V to paste.',
+      );
     }
   }
 
@@ -151,6 +568,54 @@ export class App {
 
   protected setInputText(event: Event): void {
     this.inputText.set((event.target as HTMLTextAreaElement).value);
+  }
+
+  protected setPasswordLength(event: Event): void {
+    const length = Number((event.target as HTMLInputElement).value);
+    this.passwordLength.set(Math.min(Math.max(length || 8, 8), 48));
+  }
+
+  protected setSmoothness(event: Event): void {
+    const smoothness = Number((event.target as HTMLInputElement).value);
+    this.smoothness.set(Math.min(Math.max(smoothness || 0, 0), 100));
+  }
+
+  protected setPassphraseWordCount(event: Event): void {
+    const count = Number((event.target as HTMLInputElement).value);
+    this.passphraseWordCount.set(Math.min(Math.max(count || 2, 2), 4));
+  }
+
+  protected setNumberCharacterCount(event: Event): void {
+    const count = Number((event.target as HTMLInputElement).value);
+    this.numberCharacterCount.set(Math.min(Math.max(count || 0, 0), 8));
+  }
+
+  protected setSymbolCharacterCount(event: Event): void {
+    const count = Number((event.target as HTMLInputElement).value);
+    this.symbolCharacterCount.set(Math.min(Math.max(count || 0, 0), 8));
+  }
+
+  protected setDisruptionPosition(event: Event): void {
+    const position = Number((event.target as HTMLInputElement).value);
+    this.disruptionPosition.set(Math.min(Math.max(position || 0, 0), 100));
+  }
+
+  protected setTypingInput(event: Event): void {
+    const value = (event.target as HTMLInputElement).value;
+    const now = Date.now();
+
+    if (!this.typingStartedAt() && value.length) {
+      this.typingStartedAt.set(now);
+    }
+
+    if (!value.length) {
+      this.typingStartedAt.set(0);
+      this.typingElapsedMs.set(0);
+    } else {
+      this.typingElapsedMs.set(now - this.typingStartedAt());
+    }
+
+    this.typingInput.set(value);
   }
 
   protected setResultScroll(event: Event): void {
@@ -258,6 +723,51 @@ export class App {
     this.copiedTimer = setTimeout(() => this.copied.set(false), 1400);
   }
 
+  protected generatePassword(): void {
+    const categories = this.selectedPasswordCategories();
+
+    if (!categories.length) {
+      this.includeLowercase.set(true);
+      categories.push('lowercase');
+    }
+    if (this.passwordStyle() !== 'random' && !this.hasLetterCategory(categories)) {
+      this.includeLowercase.set(true);
+      categories.push('lowercase');
+    }
+
+    const pool = this.getPasswordPool(categories);
+    if (!pool.length) {
+      this.showMessage('No matching password characters are available with those options.');
+      return;
+    }
+
+    this.generatedPassword.set(this.buildStyledPassword(pool, categories));
+    this.resetTypingTest();
+  }
+
+  protected async copyPassword(): Promise<void> {
+    const password = this.generatedPassword();
+
+    if (!password) {
+      return;
+    }
+
+    await navigator.clipboard?.writeText(password);
+    this.passwordCopied.set(true);
+
+    if (this.passwordCopiedTimer) {
+      clearTimeout(this.passwordCopiedTimer);
+    }
+
+    this.passwordCopiedTimer = setTimeout(() => this.passwordCopied.set(false), 1400);
+  }
+
+  protected resetTypingTest(): void {
+    this.typingInput.set('');
+    this.typingStartedAt.set(0);
+    this.typingElapsedMs.set(0);
+  }
+
   protected getOverflowLabel(count: number): string {
     return `+ ${count.toLocaleString()} more`;
   }
@@ -337,11 +847,7 @@ export class App {
   }
 
   private getGutterOffset(firstLineNumber: number, scrollTop: number): number {
-    return (
-      EDITOR_VERTICAL_PADDING +
-      (firstLineNumber - 1) * EDITOR_LINE_HEIGHT -
-      scrollTop
-    );
+    return EDITOR_VERTICAL_PADDING + (firstLineNumber - 1) * EDITOR_LINE_HEIGHT - scrollTop;
   }
 
   private getStats(value: string): TextStats {
@@ -382,5 +888,458 @@ export class App {
       characters: value.length,
       words,
     };
+  }
+
+  private getPasswordPool(categories: PasswordCategory[]): PasswordChar[] {
+    return PASSWORD_CHARS.filter(
+      (character) =>
+        categories.includes(character.category) &&
+        (!this.avoidAmbiguous() || !AMBIGUOUS_CHARACTERS.has(character.value)) &&
+        (!this.avoidAwkwardKeys() || !AWKWARD_CHARACTERS.has(character.value)),
+    );
+  }
+
+  private buildStyledPassword(pool: PasswordChar[], categories: PasswordCategory[]): string {
+    const disruptionCounts = this.getDisruptionCounts();
+    const coreLength = Math.max(
+      4,
+      this.passwordLength() - disruptionCounts.numbers - disruptionCounts.symbols,
+    );
+    const coreCategories = this.getCoreCategories(categories);
+    const corePool = this.getPasswordPool(coreCategories);
+    let core = '';
+
+    if (this.passwordStyle() === 'passphrase') {
+      core = this.buildPassphraseCore(coreLength, categories);
+    } else if (this.passwordStyle() === 'smooth') {
+      core = this.buildPhoneticPassword(corePool, coreCategories, coreLength);
+    } else {
+      core = this.buildPassword(corePool.length ? corePool : pool, coreCategories, coreLength);
+    }
+
+    return this.insertDisruptions(core, pool, disruptionCounts);
+  }
+
+  private buildPassword(
+    pool: PasswordChar[],
+    categories: PasswordCategory[],
+    length = this.passwordLength(),
+  ): string {
+    const sidePools: Record<PasswordSide, PasswordChar[]> = {
+      left: pool.filter((character) => character.side === 'left'),
+      right: pool.filter((character) => character.side === 'right'),
+    };
+
+    for (let attempt = 0; attempt < 100; attempt += 1) {
+      const password = this.alternateHands()
+        ? this.buildAlternatingPassword(sidePools, length, pool)
+        : Array.from({ length }, () => this.pick(pool).value).join('');
+
+      if (this.includesCategories(password, categories)) {
+        return password;
+      }
+    }
+
+    return this.alternateHands()
+      ? this.buildAlternatingPassword(sidePools, length, pool)
+      : Array.from({ length }, () => this.pick(pool).value).join('');
+  }
+
+  private buildPhoneticPassword(
+    pool: PasswordChar[],
+    categories: PasswordCategory[],
+    length: number,
+  ): string {
+    const letters = this.buildPhoneticLetters(length);
+    const characters = letters.split('');
+
+    if (!this.includeLowercase()) {
+      this.applyUppercase(characters, characters.length);
+    }
+    if (categories.includes('uppercase')) {
+      this.applyUppercase(characters);
+    }
+    if (categories.includes('numbers')) {
+      this.applyCategoryReplacement(characters, pool, 'numbers');
+    }
+    if (categories.includes('symbols')) {
+      this.applyCategoryReplacement(characters, pool, 'symbols');
+    }
+
+    return characters.join('').slice(0, length);
+  }
+
+  private buildPassphraseCore(length: number, categories: PasswordCategory[]): string {
+    const preferredWordBank =
+      this.alternateHands() && ALTERNATING_PASSPHRASE_WORDS.length
+        ? ALTERNATING_PASSPHRASE_WORDS
+        : PASSPHRASE_WORDS;
+    const wordBank = this.getFreshPassphraseWordBank(preferredWordBank);
+    const targetWordCount = this.getPassphraseWordCountForLength(length);
+    let bestWords: string[] = [];
+    let bestScore = Number.POSITIVE_INFINITY;
+
+    for (let attempt = 0; attempt < 80; attempt += 1) {
+      const words = this.buildPassphraseWords(wordBank, targetWordCount, length);
+      const formatted = this.formatPassphraseWords(words, categories).join(
+        this.getPassphraseSeparator(),
+      );
+      const score = this.getPassphraseScore(formatted, length);
+
+      if (score < bestScore) {
+        bestScore = score;
+        bestWords = words;
+      }
+    }
+
+    this.rememberPassphraseWords(bestWords);
+
+    return this.formatPassphraseWords(bestWords, categories).join(this.getPassphraseSeparator());
+  }
+
+  private insertDisruptions(
+    core: string,
+    pool: PasswordChar[],
+    counts: { numbers: number; symbols: number },
+  ): string {
+    let password = core;
+    const numbers = this.pickCharacters(pool, 'numbers', counts.numbers);
+    const symbols =
+      this.endingPattern() === 'custom'
+        ? this.pickCharacters(pool, 'symbols', counts.symbols)
+        : Array.from({ length: counts.symbols }, () => '!');
+
+    password = this.insertDisruptionGroup(password, numbers, this.numberPlacement());
+    password = this.insertDisruptionGroup(password, symbols, this.symbolPlacement());
+
+    if (this.numberPlacement() === 'end' && this.symbolPlacement() === 'end') {
+      return `${core}${symbols.join('')}${numbers.join('')}`;
+    }
+
+    return password;
+  }
+
+  private insertDisruptionGroup(
+    core: string,
+    disruptions: string[],
+    placement: DisruptionPlacement,
+  ): string {
+    if (!disruptions.length) {
+      return core;
+    }
+    if (placement === 'start') {
+      return `${disruptions.join('')}${core}`;
+    }
+    if (placement === 'end') {
+      return `${core}${disruptions.join('')}`;
+    }
+
+    const characters = core.split('');
+    const anchorIndex = Math.round((characters.length * this.disruptionPosition()) / 100);
+
+    disruptions.forEach((character, index) => {
+      const offset = index - Math.floor(disruptions.length / 2);
+      const insertIndex = Math.min(Math.max(anchorIndex + offset, 0), characters.length);
+      characters.splice(insertIndex, 0, character);
+    });
+
+    return characters.join('');
+  }
+
+  private getDisruptionCounts(): { numbers: number; symbols: number } {
+    if (this.endingPattern() === 'none') {
+      return { numbers: 0, symbols: 0 };
+    }
+    if (this.endingPattern() === 'bangNumber') {
+      return { numbers: this.includeNumbers() ? 1 : 0, symbols: this.includeSymbols() ? 1 : 0 };
+    }
+    if (this.endingPattern() === 'bangTwoNumbers') {
+      return { numbers: this.includeNumbers() ? 2 : 0, symbols: this.includeSymbols() ? 1 : 0 };
+    }
+
+    const budget = Math.max(this.passwordLength() - 4, 0);
+    const numbers = this.includeNumbers() ? Math.min(this.numberCharacterCount(), budget) : 0;
+    const symbols = this.includeSymbols()
+      ? Math.min(this.symbolCharacterCount(), Math.max(budget - numbers, 0))
+      : 0;
+
+    return { numbers, symbols };
+  }
+
+  private formatPassphraseWords(words: string[], categories: PasswordCategory[]): string[] {
+    if (!categories.includes('uppercase') || this.capitalizationStyle() === 'lowercase') {
+      return words;
+    }
+
+    if (this.capitalizationStyle() === 'title') {
+      return words.map((word) => `${word[0].toUpperCase()}${word.slice(1)}`);
+    }
+
+    return words.map((word, index) =>
+      index === 0 ? word : `${word[0].toUpperCase()}${word.slice(1)}`,
+    );
+  }
+
+  private getPassphraseSeparator(): string {
+    if (this.passphraseJoin() === 'hyphen') {
+      return '-';
+    }
+    if (this.passphraseJoin() === 'dot') {
+      return '.';
+    }
+    return '';
+  }
+
+  private getFreshPassphraseWordBank(wordBank: string[]): string[] {
+    const recent = new Set(this.recentPassphraseWords);
+    const freshWords = wordBank.filter((word) => !recent.has(word));
+
+    return freshWords.length >= 24 ? freshWords : wordBank;
+  }
+
+  private rememberPassphraseWords(words: string[]): void {
+    this.recentPassphraseWords = [...words, ...this.recentPassphraseWords].slice(0, 36);
+  }
+
+  private getPassphraseWordCountForLength(length: number): number {
+    const separatorLength = this.getPassphraseSeparator().length;
+    const maxWords = this.passphraseWordCount();
+    let bestCount = 2;
+    let bestDistance = Number.POSITIVE_INFINITY;
+
+    for (let count = 2; count <= maxWords; count += 1) {
+      const averageWordLength = 5;
+      const estimatedLength = count * averageWordLength + Math.max(count - 1, 0) * separatorLength;
+      const distance = Math.abs(estimatedLength - length);
+
+      if (distance < bestDistance) {
+        bestDistance = distance;
+        bestCount = count;
+      }
+    }
+
+    return bestCount;
+  }
+
+  private buildPassphraseWords(
+    wordBank: string[],
+    wordCount: number,
+    targetLength: number,
+  ): string[] {
+    const words: string[] = [];
+
+    while (words.length < wordCount) {
+      words.push(this.pickNextPassphraseWord(wordBank, words.at(-1), targetLength, words));
+    }
+
+    return words;
+  }
+
+  private getPassphraseScore(value: string, targetLength: number): number {
+    const lengthPenalty = Math.abs(value.length - targetLength) * 2;
+    const rhythmPenalty = this.alternateHands()
+      ? getAlternationBreakCount(value) * this.smoothness()
+      : 0;
+
+    return lengthPenalty + rhythmPenalty;
+  }
+
+  private getCoreCategories(categories: PasswordCategory[]): PasswordCategory[] {
+    const coreCategories = categories.filter(
+      (category) => category !== 'numbers' && category !== 'symbols',
+    );
+
+    if (coreCategories.length) {
+      return coreCategories;
+    }
+
+    return categories.length ? categories : ['lowercase'];
+  }
+
+  private hasLetterCategory(categories: PasswordCategory[]): boolean {
+    return categories.includes('lowercase') || categories.includes('uppercase');
+  }
+
+  private pickCharacters(
+    pool: PasswordChar[],
+    category: Extract<PasswordCategory, 'numbers' | 'symbols'>,
+    count: number,
+  ): string[] {
+    const categoryPool = pool.filter((character) => character.category === category);
+
+    if (!categoryPool.length || count <= 0) {
+      return [];
+    }
+
+    return Array.from({ length: count }, () => this.pick(categoryPool).value);
+  }
+
+  private pickNextPassphraseWord(
+    wordBank: string[],
+    previousWord: string | undefined,
+    targetLength: number,
+    existingWords: string[],
+  ): string {
+    const availableWords = wordBank.filter((word) => !existingWords.includes(word));
+    const usableWordBank = availableWords.length ? availableWords : wordBank;
+
+    if (!previousWord) {
+      return this.pick(usableWordBank);
+    }
+
+    const previousSide = getCharacterSide(previousWord.at(-1) ?? '');
+    const currentLength = existingWords.join(this.getPassphraseSeparator()).length;
+    const candidates = usableWordBank
+      .filter((word) => getCharacterSide(word[0]) !== previousSide || this.smoothness() < 60)
+      .sort((first, second) => {
+        const firstPhrase = [...existingWords, first].join(this.getPassphraseSeparator());
+        const secondPhrase = [...existingWords, second].join(this.getPassphraseSeparator());
+        const firstLengthScore = Math.abs(currentLength + first.length - targetLength);
+        const secondLengthScore = Math.abs(currentLength + second.length - targetLength);
+
+        return (
+          this.getPassphraseScore(firstPhrase, targetLength) +
+          firstLengthScore -
+          (this.getPassphraseScore(secondPhrase, targetLength) + secondLengthScore)
+        );
+      });
+
+    const bestCandidates = candidates.length ? candidates : wordBank;
+
+    return this.pick(bestCandidates.slice(0, Math.max(4, Math.ceil(bestCandidates.length / 3))));
+  }
+
+  private buildPhoneticLetters(length: number): string {
+    const characters: string[] = [];
+    let side: PasswordSide = this.randomNumber(2) ? 'right' : 'left';
+    let wantsConsonant = true;
+
+    while (characters.length < length) {
+      const source = wantsConsonant ? PHONETIC_CONSONANTS : PHONETIC_VOWELS;
+      const sidePool = source.filter((character) => character.side === side);
+      const fallbackPool = source.length ? source : this.getPasswordPool(['lowercase']);
+      const pool = sidePool.length ? sidePool : fallbackPool;
+
+      characters.push(this.pick(pool).value);
+      wantsConsonant = !wantsConsonant;
+
+      if (this.alternateHands()) {
+        side = side === 'left' ? 'right' : 'left';
+      } else if (this.randomNumber(3) === 0) {
+        side = side === 'left' ? 'right' : 'left';
+      }
+    }
+
+    return characters.join('');
+  }
+
+  private applyUppercase(characters: string[], replacementCount?: number): void {
+    const letterIndexes = characters
+      .map((character, index) => ({ character, index }))
+      .filter(({ character }) => /[a-z]/.test(character))
+      .map(({ index }) => index);
+
+    if (!letterIndexes.length) {
+      return;
+    }
+
+    const replacements = replacementCount ?? Math.max(1, Math.floor(letterIndexes.length / 5));
+    if (replacements >= letterIndexes.length) {
+      letterIndexes.forEach((index) => {
+        characters[index] = characters[index].toUpperCase();
+      });
+      return;
+    }
+
+    for (let count = 0; count < replacements; count += 1) {
+      const index = this.pick(letterIndexes);
+      characters[index] = characters[index].toUpperCase();
+    }
+  }
+
+  private applyCategoryReplacement(
+    characters: string[],
+    pool: PasswordChar[],
+    category: Exclude<PasswordCategory, 'lowercase'>,
+  ): void {
+    const categoryPool = pool.filter((character) => character.category === category);
+
+    if (!categoryPool.length) {
+      return;
+    }
+
+    const replacements =
+      category === 'uppercase' ? Math.max(1, Math.floor(characters.length / 4)) : 1;
+    for (let count = 0; count < replacements; count += 1) {
+      const index = this.pickReplaceableIndex(characters);
+      characters[index] = this.pick(categoryPool).value;
+    }
+  }
+
+  private pickReplaceableIndex(characters: string[]): number {
+    const interiorIndexes = characters
+      .map((_, index) => index)
+      .filter((index) => index > 0 && index < characters.length - 1);
+
+    return this.pick(
+      interiorIndexes.length ? interiorIndexes : characters.map((_, index) => index),
+    );
+  }
+
+  private buildAlternatingPassword(
+    sidePools: Record<PasswordSide, PasswordChar[]>,
+    length: number,
+    fullPool: PasswordChar[],
+  ): string {
+    let side: PasswordSide = this.randomNumber(2) ? 'right' : 'left';
+    const characters: string[] = [];
+
+    for (let index = 0; index < length; index += 1) {
+      const shouldUseRhythm = this.randomNumber(100) < this.smoothness();
+      const pool = shouldUseRhythm
+        ? sidePools[side].length
+          ? sidePools[side]
+          : fullPool
+        : fullPool;
+      characters.push(this.pick(pool).value);
+      if (shouldUseRhythm) {
+        side = side === 'left' ? 'right' : 'left';
+      } else {
+        side = this.randomNumber(2) ? 'right' : 'left';
+      }
+    }
+
+    return characters.join('');
+  }
+
+  private includesCategories(password: string, categories: PasswordCategory[]): boolean {
+    return categories.every((category) =>
+      password
+        .split('')
+        .some((character) =>
+          PASSWORD_CHARS.some((entry) => entry.value === character && entry.category === category),
+        ),
+    );
+  }
+
+  private estimatedEntropy(): number {
+    return Math.round(
+      this.passwordLength() *
+        Math.log2(Math.max(this.getPasswordPool(this.selectedPasswordCategories()).length, 1)),
+    );
+  }
+
+  private getKeySide(character: string): PasswordSide {
+    return getCharacterSide(character);
+  }
+
+  private pick<T>(items: T[]): T {
+    return items[this.randomNumber(items.length)];
+  }
+
+  private randomNumber(maxExclusive: number): number {
+    const values = new Uint32Array(1);
+    crypto.getRandomValues(values);
+    return values[0] % maxExclusive;
   }
 }

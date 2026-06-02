@@ -5,232 +5,573 @@
   </div>
 
   <nav class="utility-tabs" mat-tab-nav-bar [tabPanel]="tabPanel" aria-label="Utility tabs">
-    <a mat-tab-link active>Add Quotes</a>
+    <a mat-tab-link [active]="activeUtility() === 'quotes'" (click)="activeUtility.set('quotes')">
+      Add Quotes
+    </a>
+    <a
+      mat-tab-link
+      [active]="activeUtility() === 'password'"
+      (click)="activeUtility.set('password')"
+    >
+      Password Generator
+    </a>
   </nav>
 </mat-toolbar>
 
 <mat-tab-nav-panel #tabPanel></mat-tab-nav-panel>
 
 <main class="page-shell">
-  <section class="hero">
-    <div>
-      <p class="eyebrow">Text formatter</p>
-      <h1>Add quotes to text</h1>
-      <p class="lede">
-        Wrap every row in quotes, optionally add commas, and copy a clean result.
-      </p>
-    </div>
-  </section>
-
-  <section class="tool-surface" aria-labelledby="quote-tool-title">
-    <div class="tool-header">
+  @if (activeUtility() === 'quotes') {
+    <section class="hero">
       <div>
-        <p class="eyebrow">Quote builder</p>
-        <h2 id="quote-tool-title">Format rows</h2>
+        <p class="eyebrow">Text formatter</p>
+        <h1>Add quotes to text</h1>
+        <p class="lede">
+          Wrap every row in quotes, optionally add commas, and copy a clean result.
+        </p>
+      </div>
+    </section>
+  } @else {
+    <section class="hero password-hero">
+      <div>
+        <p class="eyebrow">QWERTY rhythm</p>
+        <h1>Password generator</h1>
+        <p class="lede">
+          Generate secure passwords that intentionally aim to make it easier to type for muscle
+          memory.
+        </p>
+      </div>
+    </section>
+  }
+
+  @if (activeUtility() === 'quotes') {
+    <section class="tool-surface" aria-labelledby="quote-tool-title">
+      <div class="tool-header">
+        <div>
+          <p class="eyebrow">Quote builder</p>
+          <h2 id="quote-tool-title">Format rows</h2>
+        </div>
+
+        <div class="controls">
+          <mat-radio-group
+            class="quote-options"
+            aria-label="Quote type"
+            [ngModel]="quoteType()"
+            (ngModelChange)="quoteType.set($event)"
+          >
+            <mat-radio-button value="double">Double</mat-radio-button>
+            <mat-radio-button value="single">Single</mat-radio-button>
+          </mat-radio-group>
+
+          <mat-checkbox [ngModel]="addCommas()" (ngModelChange)="addCommas.set($event)">
+            Add commas
+          </mat-checkbox>
+
+          <mat-checkbox
+            [disabled]="!addCommas()"
+            [ngModel]="omitLastComma()"
+            (ngModelChange)="omitLastComma.set($event)"
+          >
+            Omit last comma
+          </mat-checkbox>
+        </div>
       </div>
 
-      <div class="controls">
-        <mat-radio-group
-          class="quote-options"
-          aria-label="Quote type"
-          [ngModel]="quoteType()"
-          (ngModelChange)="quoteType.set($event)"
-        >
-          <mat-radio-button value="double">Double</mat-radio-button>
-          <mat-radio-button value="single">Single</mat-radio-button>
-        </mat-radio-group>
+      <div class="editor-grid">
+        <mat-card appearance="outlined" class="editor-card">
+          <mat-card-header>
+            <mat-card-title>Input</mat-card-title>
+            <span class="spacer"></span>
+            <button mat-button type="button" (click)="pasteInput()">Paste</button>
+            <button mat-button type="button" (click)="clearInput()">Clear</button>
+          </mat-card-header>
 
-        <mat-checkbox
-          [ngModel]="addCommas()"
-          (ngModelChange)="addCommas.set($event)"
-        >
-          Add commas
-        </mat-checkbox>
-
-        <mat-checkbox
-          [disabled]="!addCommas()"
-          [ngModel]="omitLastComma()"
-          (ngModelChange)="omitLastComma.set($event)"
-        >
-          Omit last comma
-        </mat-checkbox>
-      </div>
-    </div>
-
-    <div class="editor-grid">
-      <mat-card appearance="outlined" class="editor-card">
-        <mat-card-header>
-          <mat-card-title>Input</mat-card-title>
-          <span class="spacer"></span>
-          <button mat-button type="button" (click)="pasteInput()">Paste</button>
-          <button mat-button type="button" (click)="clearInput()">Clear</button>
-        </mat-card-header>
-
-        <mat-card-content>
-          <label class="code-field">
-            <div class="line-gutter" aria-hidden="true">
-              <div
-                class="line-gutter-inner"
-                [style.transform]="'translateY(' + inputGutterOffset() + 'px)'"
-              >
-                @for (lineNumber of inputLineNumbers(); track lineNumber) {
-                  <span>{{ lineNumber }}</span>
-                }
+          <mat-card-content>
+            <label class="code-field">
+              <div class="line-gutter" aria-hidden="true">
+                <div
+                  class="line-gutter-inner"
+                  [style.transform]="'translateY(' + inputGutterOffset() + 'px)'"
+                >
+                  @for (lineNumber of inputLineNumbers(); track lineNumber) {
+                    <span>{{ lineNumber }}</span>
+                  }
+                </div>
               </div>
-            </div>
 
-            <textarea
-              #inputTextarea
-              class="code-textarea"
-              rows="16"
-              wrap="off"
-              spellcheck="false"
-              [value]="inputText()"
-              (input)="setInputText($event)"
-              (scroll)="setInputScroll($event)"
-              placeholder="alpha&#10;bravo&#10;charlie"
-            ></textarea>
-          </label>
+              <textarea
+                #inputTextarea
+                class="code-textarea"
+                rows="16"
+                wrap="off"
+                spellcheck="false"
+                [value]="inputText()"
+                (input)="setInputText($event)"
+                (scroll)="setInputScroll($event)"
+                placeholder="alpha&#10;bravo&#10;charlie"
+              ></textarea>
+            </label>
+          </mat-card-content>
+        </mat-card>
 
-        </mat-card-content>
-      </mat-card>
+        <mat-card appearance="outlined" class="editor-card">
+          <mat-card-header>
+            <mat-card-title>Result</mat-card-title>
+            <span class="spacer"></span>
+            <button
+              mat-flat-button
+              color="primary"
+              type="button"
+              class="copy-button"
+              [class.copy-button--copied]="copied()"
+              (click)="copyResult()"
+            >
+              {{ copied() ? 'Copied' : 'Copy' }}
+            </button>
+          </mat-card-header>
 
-      <mat-card appearance="outlined" class="editor-card">
-        <mat-card-header>
-          <mat-card-title>Result</mat-card-title>
-          <span class="spacer"></span>
+          <mat-card-content>
+            <label class="code-field">
+              <div class="line-gutter" aria-hidden="true">
+                <div
+                  class="line-gutter-inner"
+                  [style.transform]="'translateY(' + resultGutterOffset() + 'px)'"
+                >
+                  @for (lineNumber of resultLineNumbers(); track lineNumber) {
+                    <span>{{ lineNumber }}</span>
+                  }
+                </div>
+              </div>
+
+              <textarea
+                class="code-textarea"
+                rows="16"
+                wrap="off"
+                spellcheck="false"
+                [value]="resultText()"
+                (scroll)="setResultScroll($event)"
+                readonly
+              ></textarea>
+            </label>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <div class="secondary-tools" aria-label="Input cleanup tools">
+        <div>
+          <strong>Cleanup</strong>
+          <span>Optional input transforms before formatting.</span>
+        </div>
+
+        <div class="secondary-actions">
+          <button
+            mat-stroked-button
+            type="button"
+            matTooltip="Removes double quotes, single quotes, backticks, and commas from the input."
+            (click)="removeQuotesAndCommas()"
+          >
+            Remove quotes/commas
+          </button>
+          <button mat-stroked-button type="button" (click)="trimRows()">
+            Clear edge whitespace
+          </button>
+          <button mat-stroked-button type="button" (click)="deduplicateRows()">
+            Deduplicate rows
+          </button>
+          <button mat-stroked-button type="button" (click)="removeEmptyRows()">
+            Remove empty rows
+          </button>
+          <button mat-stroked-button type="button" (click)="sortRows()">Sort rows</button>
+        </div>
+      </div>
+
+      @if (inputInsights().whitespaceRows.length) {
+        <div class="input-warning" role="status">
+          <strong>Whitespace detected</strong>
+          <span>Rows:</span>
+          <div class="row-chip-list" aria-label="Rows with surrounding whitespace">
+            @for (rowNumber of inputInsights().whitespaceRows; track rowNumber) {
+              <span class="row-chip">{{ rowNumber }}</span>
+            }
+            @if (inputInsights().whitespaceOverflow) {
+              <span class="row-chip row-chip--summary">
+                {{ getOverflowLabel(inputInsights().whitespaceOverflow) }}
+              </span>
+            }
+          </div>
+          <span>Use Clear edge whitespace to fix.</span>
+        </div>
+      }
+
+      @if (inputInsights().blankLineRows.length) {
+        <div class="input-warning" role="status">
+          <strong>Empty rows detected</strong>
+          <span>Rows:</span>
+          <div class="row-chip-list" aria-label="Empty rows">
+            @for (rowNumber of inputInsights().blankLineRows; track rowNumber) {
+              <span class="row-chip">{{ rowNumber }}</span>
+            }
+            @if (inputInsights().blankLineOverflow) {
+              <span class="row-chip row-chip--summary">
+                {{ getOverflowLabel(inputInsights().blankLineOverflow) }}
+              </span>
+            }
+          </div>
+          <span>Use Remove empty rows to fix.</span>
+        </div>
+      }
+
+      <div class="stats-grid" aria-label="Text statistics">
+        <mat-card appearance="outlined" class="stat-card">
+          <span>Input rows</span>
+          <strong>{{ inputStats().rows }}</strong>
+        </mat-card>
+        <mat-card appearance="outlined" class="stat-card">
+          <span>Input characters</span>
+          <strong>{{ inputStats().characters }}</strong>
+        </mat-card>
+        <mat-card appearance="outlined" class="stat-card">
+          <span>Duplicate rows</span>
+          <strong>{{ inputInsights().duplicateRows }}</strong>
+        </mat-card>
+        <mat-card appearance="outlined" class="stat-card">
+          <span>Blank lines</span>
+          <strong>{{ inputInsights().blankLines }}</strong>
+        </mat-card>
+        <mat-card appearance="outlined" class="stat-card">
+          <span>Result rows</span>
+          <strong>{{ resultStats().rows }}</strong>
+        </mat-card>
+        <mat-card appearance="outlined" class="stat-card">
+          <span>Result characters</span>
+          <strong>{{ resultStats().characters }}</strong>
+        </mat-card>
+      </div>
+    </section>
+  } @else {
+    <section class="tool-surface password-surface" aria-labelledby="password-tool-title">
+      <div class="tool-header">
+        <div>
+          <p class="eyebrow">Password builder</p>
+          <h2 id="password-tool-title">Easy-to-type generator</h2>
+        </div>
+
+        <div class="password-actions">
+          <button mat-stroked-button type="button" (click)="generatePassword()">Generate</button>
           <button
             mat-flat-button
             color="primary"
             type="button"
             class="copy-button"
-            [class.copy-button--copied]="copied()"
-            (click)="copyResult()"
+            [class.copy-button--copied]="passwordCopied()"
+            [disabled]="!generatedPassword()"
+            (click)="copyPassword()"
           >
-            {{ copied() ? 'Copied' : 'Copy' }}
+            {{ passwordCopied() ? 'Copied' : 'Copy' }}
+          </button>
+        </div>
+      </div>
+
+      <div class="password-grid">
+        <mat-card appearance="outlined" class="password-card password-card--output">
+          <mat-card-header>
+            <mat-card-title>Generated password</mat-card-title>
+            <span class="spacer"></span>
+            <span class="strength-pill">{{ passwordStrengthLabel() }}</span>
+          </mat-card-header>
+
+          <mat-card-content>
+            <div class="password-display" aria-live="polite">
+              {{ generatedPassword() || 'Generate a password to start.' }}
+            </div>
+
+            @if (endingPattern() === 'custom') {
+              <div class="disruption-controls" aria-label="Number and special character placement">
+                <label>
+                  <span>Custom insert position</span>
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    [disabled]="numberPlacement() !== 'custom' && symbolPlacement() !== 'custom'"
+                    [value]="disruptionPosition()"
+                    (input)="setDisruptionPosition($event)"
+                  />
+                </label>
+                <div class="placement-grid">
+                  <div>
+                    <span>Special characters</span>
+                    <mat-radio-group
+                      aria-label="Special character placement"
+                      [ngModel]="symbolPlacement()"
+                      (ngModelChange)="symbolPlacement.set($event)"
+                    >
+                      <mat-radio-button value="start">Start</mat-radio-button>
+                      <mat-radio-button value="custom">Custom</mat-radio-button>
+                      <mat-radio-button value="end">End</mat-radio-button>
+                    </mat-radio-group>
+                  </div>
+                  <div>
+                    <span>Numbers</span>
+                    <mat-radio-group
+                      aria-label="Number placement"
+                      [ngModel]="numberPlacement()"
+                      (ngModelChange)="numberPlacement.set($event)"
+                    >
+                      <mat-radio-button value="start">Start</mat-radio-button>
+                      <mat-radio-button value="custom">Custom</mat-radio-button>
+                      <mat-radio-button value="end">End</mat-radio-button>
+                    </mat-radio-group>
+                  </div>
+                </div>
+              </div>
+            }
+
+            @if (generatedPassword()) {
+              <div class="rhythm-track" aria-label="Left and right hand rhythm">
+                @for (side of passwordRhythm(); track $index) {
+                  <span [class.rhythm-dot--right]="side === 'right'" class="rhythm-dot">
+                    {{ side === 'left' ? 'L' : 'R' }}
+                  </span>
+                }
+              </div>
+            }
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card appearance="outlined" class="password-card options-card">
+          <mat-card-header>
+            <mat-card-title>Options</mat-card-title>
+          </mat-card-header>
+
+          <mat-card-content>
+            <div class="control-grid">
+              <label class="length-field">
+                <span>Length</span>
+                <input
+                  matInput
+                  type="number"
+                  min="8"
+                  max="48"
+                  [value]="passwordLength()"
+                  (input)="setPasswordLength($event)"
+                />
+              </label>
+
+              <label class="mini-range mini-range--flush">
+                <span>Smoothness: {{ smoothness() }}</span>
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  [value]="smoothness()"
+                  (input)="setSmoothness($event)"
+                />
+              </label>
+            </div>
+
+            <mat-radio-group
+              class="style-options"
+              aria-label="Password style"
+              [ngModel]="passwordStyle()"
+              (ngModelChange)="passwordStyle.set($event)"
+            >
+              <mat-radio-button value="random">Random</mat-radio-button>
+              <mat-radio-button value="smooth">Smooth</mat-radio-button>
+              <mat-radio-button value="passphrase">Passphrase</mat-radio-button>
+            </mat-radio-group>
+
+            @if (passwordStyle() === 'passphrase') {
+              <div class="passphrase-grid">
+                <label class="mini-range mini-range--flush">
+                  <span>Max words: {{ passphraseWordCount() }}</span>
+                  <input
+                    type="range"
+                    min="2"
+                    max="4"
+                    [value]="passphraseWordCount()"
+                    (input)="setPassphraseWordCount($event)"
+                  />
+                </label>
+
+                <mat-radio-group
+                  class="compact-options"
+                  aria-label="Passphrase separator"
+                  [ngModel]="passphraseJoin()"
+                  (ngModelChange)="passphraseJoin.set($event)"
+                >
+                  <mat-radio-button value="none">No join</mat-radio-button>
+                  <mat-radio-button value="hyphen">Hyphen</mat-radio-button>
+                  <mat-radio-button value="dot">Dot</mat-radio-button>
+                </mat-radio-group>
+
+                <mat-radio-group
+                  class="compact-options compact-options--wide"
+                  aria-label="Capitalization"
+                  [ngModel]="capitalizationStyle()"
+                  (ngModelChange)="capitalizationStyle.set($event)"
+                >
+                  <mat-radio-button value="lowercase">lowercase</mat-radio-button>
+                  <mat-radio-button value="title">TitleCase</mat-radio-button>
+                  <mat-radio-button value="camel">camelCase</mat-radio-button>
+                </mat-radio-group>
+              </div>
+            }
+
+            <div class="control-section">
+              <span class="section-label">Ending</span>
+              <mat-radio-group
+                class="compact-options compact-options--wide"
+                aria-label="Ending pattern"
+                [ngModel]="endingPattern()"
+                (ngModelChange)="endingPattern.set($event)"
+              >
+                <mat-radio-button value="none">None</mat-radio-button>
+                <mat-radio-button value="bangNumber">!#</mat-radio-button>
+                <mat-radio-button value="bangTwoNumbers">!##</mat-radio-button>
+                <mat-radio-button value="custom">Custom</mat-radio-button>
+              </mat-radio-group>
+            </div>
+
+            <div class="option-list" aria-label="Password options">
+              <mat-checkbox
+                [ngModel]="includeLowercase()"
+                (ngModelChange)="includeLowercase.set($event)"
+              >
+                Lowercase
+              </mat-checkbox>
+              <mat-checkbox
+                [ngModel]="includeUppercase()"
+                (ngModelChange)="includeUppercase.set($event)"
+              >
+                Uppercase
+              </mat-checkbox>
+              <mat-checkbox
+                [ngModel]="includeSymbols()"
+                (ngModelChange)="includeSymbols.set($event)"
+              >
+                Special characters
+              </mat-checkbox>
+              @if (includeSymbols() && endingPattern() === 'custom') {
+                <label class="mini-range">
+                  <span>Special character count: {{ symbolCharacterCount() }}</span>
+                  <input
+                    type="range"
+                    min="0"
+                    max="8"
+                    [value]="symbolCharacterCount()"
+                    (input)="setSymbolCharacterCount($event)"
+                  />
+                </label>
+              }
+              <mat-checkbox
+                [ngModel]="includeNumbers()"
+                (ngModelChange)="includeNumbers.set($event)"
+              >
+                Numbers
+              </mat-checkbox>
+              @if (includeNumbers() && endingPattern() === 'custom') {
+                <label class="mini-range">
+                  <span>Number count: {{ numberCharacterCount() }}</span>
+                  <input
+                    type="range"
+                    min="0"
+                    max="8"
+                    [value]="numberCharacterCount()"
+                    (input)="setNumberCharacterCount($event)"
+                  />
+                </label>
+              }
+              <mat-checkbox
+                [ngModel]="alternateHands()"
+                (ngModelChange)="alternateHands.set($event)"
+              >
+                Alternate left/right hands
+              </mat-checkbox>
+              <mat-checkbox
+                [ngModel]="avoidAmbiguous()"
+                (ngModelChange)="avoidAmbiguous.set($event)"
+              >
+                Avoid ambiguous characters
+              </mat-checkbox>
+              <mat-checkbox
+                [ngModel]="avoidAwkwardKeys()"
+                (ngModelChange)="avoidAwkwardKeys.set($event)"
+              >
+                Avoid awkward keys
+              </mat-checkbox>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <mat-card appearance="outlined" class="typing-card">
+        <mat-card-header>
+          <mat-card-title>Typing test</mat-card-title>
+          <span class="spacer"></span>
+          <button
+            mat-button
+            type="button"
+            [disabled]="!generatedPassword()"
+            (click)="resetTypingTest()"
+          >
+            Reset
           </button>
         </mat-card-header>
 
         <mat-card-content>
-          <label class="code-field">
-            <div class="line-gutter" aria-hidden="true">
-              <div
-                class="line-gutter-inner"
-                [style.transform]="'translateY(' + resultGutterOffset() + 'px)'"
+          <div class="typing-arena" [class.typing-arena--complete]="typingResult().isComplete">
+            <div class="typing-status">
+              <span
+                >Accuracy <strong>{{ typingResult().accuracy }}%</strong></span
               >
-                @for (lineNumber of resultLineNumbers(); track lineNumber) {
-                  <span>{{ lineNumber }}</span>
-                }
-              </div>
+              <span
+                >Speed <strong>{{ typingResult().speed }}</strong> cpm</span
+              >
+              <span
+                >Errors <strong>{{ typingResult().mistypedCharacters }}</strong></span
+              >
+              <span>
+                Next
+                <strong>{{
+                  typingResult().nextSide === 'done' ? 'Done' : typingResult().nextSide
+                }}</strong>
+              </span>
             </div>
 
-            <textarea
-              class="code-textarea"
-              rows="16"
-              wrap="off"
+            <div class="progress-rail" aria-hidden="true">
+              <span [style.width.%]="typingResult().progress * 100"></span>
+            </div>
+
+            <input
+              class="typing-input"
+              type="text"
               spellcheck="false"
-              [value]="resultText()"
-              (scroll)="setResultScroll($event)"
-              readonly
-            ></textarea>
-          </label>
+              autocomplete="off"
+              [disabled]="!generatedPassword()"
+              [value]="typingInput()"
+              (input)="setTypingInput($event)"
+              placeholder="Type the generated password here"
+            />
+
+            <div class="typing-target" aria-label="Typing target">
+              @for (character of generatedPassword().split(''); track $index) {
+                <span
+                  [class.character--matched]="typingInput()[$index] === character"
+                  [class.character--missed]="
+                    typingInput()[$index] && typingInput()[$index] !== character
+                  "
+                  [class.character--current]="$index === typingInput().length"
+                >
+                  {{ character }}
+                </span>
+              }
+            </div>
+          </div>
         </mat-card-content>
       </mat-card>
-    </div>
-
-    <div class="secondary-tools" aria-label="Input cleanup tools">
-      <div>
-        <strong>Cleanup</strong>
-        <span>Optional input transforms before formatting.</span>
-      </div>
-
-      <div class="secondary-actions">
-        <button
-          mat-stroked-button
-          type="button"
-          matTooltip="Removes double quotes, single quotes, backticks, and commas from the input."
-          (click)="removeQuotesAndCommas()"
-        >
-          Remove quotes/commas
-        </button>
-        <button mat-stroked-button type="button" (click)="trimRows()">
-          Clear edge whitespace
-        </button>
-        <button mat-stroked-button type="button" (click)="deduplicateRows()">
-          Deduplicate rows
-        </button>
-        <button mat-stroked-button type="button" (click)="removeEmptyRows()">
-          Remove empty rows
-        </button>
-        <button mat-stroked-button type="button" (click)="sortRows()">
-          Sort rows
-        </button>
-      </div>
-    </div>
-
-    @if (inputInsights().whitespaceRows.length) {
-      <div class="input-warning" role="status">
-        <strong>Whitespace detected</strong>
-        <span>Rows:</span>
-        <div class="row-chip-list" aria-label="Rows with surrounding whitespace">
-          @for (rowNumber of inputInsights().whitespaceRows; track rowNumber) {
-            <span class="row-chip">{{ rowNumber }}</span>
-          }
-          @if (inputInsights().whitespaceOverflow) {
-            <span class="row-chip row-chip--summary">
-              {{ getOverflowLabel(inputInsights().whitespaceOverflow) }}
-            </span>
-          }
-        </div>
-        <span>Use Clear edge whitespace to fix.</span>
-      </div>
-    }
-
-    @if (inputInsights().blankLineRows.length) {
-      <div class="input-warning" role="status">
-        <strong>Empty rows detected</strong>
-        <span>Rows:</span>
-        <div class="row-chip-list" aria-label="Empty rows">
-          @for (rowNumber of inputInsights().blankLineRows; track rowNumber) {
-            <span class="row-chip">{{ rowNumber }}</span>
-          }
-          @if (inputInsights().blankLineOverflow) {
-            <span class="row-chip row-chip--summary">
-              {{ getOverflowLabel(inputInsights().blankLineOverflow) }}
-            </span>
-          }
-        </div>
-        <span>Use Remove empty rows to fix.</span>
-      </div>
-    }
-
-    <div class="stats-grid" aria-label="Text statistics">
-      <mat-card appearance="outlined" class="stat-card">
-        <span>Input rows</span>
-        <strong>{{ inputStats().rows }}</strong>
-      </mat-card>
-      <mat-card appearance="outlined" class="stat-card">
-        <span>Input characters</span>
-        <strong>{{ inputStats().characters }}</strong>
-      </mat-card>
-      <mat-card appearance="outlined" class="stat-card">
-        <span>Duplicate rows</span>
-        <strong>{{ inputInsights().duplicateRows }}</strong>
-      </mat-card>
-      <mat-card appearance="outlined" class="stat-card">
-        <span>Blank lines</span>
-        <strong>{{ inputInsights().blankLines }}</strong>
-      </mat-card>
-      <mat-card appearance="outlined" class="stat-card">
-        <span>Result rows</span>
-        <strong>{{ resultStats().rows }}</strong>
-      </mat-card>
-      <mat-card appearance="outlined" class="stat-card">
-        <span>Result characters</span>
-        <strong>{{ resultStats().characters }}</strong>
-      </mat-card>
-    </div>
-  </section>
+    </section>
+  }
 </main>
 
 <footer class="site-footer">
