@@ -38,27 +38,13 @@ This will compile your project and store the build artifacts in the `dist/` dire
 
 ## Cloudflare Pages
 
-This project includes a `wrangler.jsonc` file for Cloudflare Pages. It sets the required `compatibility_date` and points Wrangler at Angular's browser build output.
+For Cloudflare Pages Git integration, configure the dashboard with:
 
-To build for Cloudflare Pages:
-
-```bash
-npm run build:cloudflare
-```
-
-To deploy with Wrangler direct upload:
-
-```bash
-npm run deploy:cloudflare
-```
-
-If you configure Cloudflare Pages through the dashboard instead, use:
-
-- Build command: `npm run build:cloudflare`
+- Build command: `npm run build`
 - Build output directory: `dist/web-utilities/browser`
 - Production branch: `main`
 
-Use `wrangler pages deploy`, not `wrangler deploy`, for Cloudflare Pages.
+Leave any deploy command field blank. The output directory belongs in the output directory field, not in a command field.
 
 ## Running unit tests
 
