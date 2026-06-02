@@ -36,6 +36,30 @@ ng build
 
 This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
 
+## Cloudflare Pages
+
+This project includes a `wrangler.jsonc` file for Cloudflare Pages. It sets the required `compatibility_date` and points Wrangler at Angular's browser build output.
+
+To build for Cloudflare Pages:
+
+```bash
+npm run build:cloudflare
+```
+
+To deploy with Wrangler direct upload:
+
+```bash
+npm run deploy:cloudflare
+```
+
+If you configure Cloudflare Pages through the dashboard instead, use:
+
+- Build command: `npm run build:cloudflare`
+- Build output directory: `dist/web-utilities/browser`
+- Production branch: `main`
+
+Use `wrangler pages deploy`, not `wrangler deploy`, for Cloudflare Pages.
+
 ## Running unit tests
 
 To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
