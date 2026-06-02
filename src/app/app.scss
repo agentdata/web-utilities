@@ -165,10 +165,11 @@ mat-card-title {
 
 .code-field {
   --editor-font-size: 15px;
+  --editor-gutter-width: 64px;
   --editor-line-height: 23px;
   position: relative;
   display: grid;
-  grid-template-columns: 48px minmax(0, 1fr);
+  grid-template-columns: var(--editor-gutter-width) minmax(0, 1fr);
   align-items: stretch;
   height: 394px;
   overflow: hidden;
@@ -192,6 +193,7 @@ mat-card-title {
   background: #eef3f8;
   color: #6b7280;
   font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
+  font-variant-numeric: tabular-nums;
   font-size: var(--editor-font-size);
   line-height: var(--editor-line-height);
 }
@@ -521,6 +523,46 @@ mat-card-title {
   border: 1px solid rgba(24, 32, 47, 0.1);
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.58);
+}
+
+.theme-field {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+
+  span {
+    color: #5b6475;
+    font-size: 0.78rem;
+    font-weight: 800;
+    text-transform: uppercase;
+  }
+
+  select {
+    min-height: 42px;
+    border: 1px solid rgba(24, 32, 47, 0.16);
+    border-radius: 8px;
+    padding: 0 12px;
+    background: rgba(255, 255, 255, 0.86);
+    color: #18202f;
+    font: inherit;
+  }
+}
+
+.theme-field--inline {
+  min-width: 150px;
+}
+
+.control-disabled {
+  opacity: 0.52;
+
+  .control-disabled {
+    opacity: 1;
+  }
+
+  input,
+  select {
+    cursor: not-allowed;
+  }
 }
 
 .control-section {

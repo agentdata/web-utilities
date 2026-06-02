@@ -379,44 +379,67 @@
               <mat-radio-button value="random">Random</mat-radio-button>
               <mat-radio-button value="smooth">Smooth</mat-radio-button>
               <mat-radio-button value="passphrase">Passphrase</mat-radio-button>
+              <mat-radio-button value="themed">Themed</mat-radio-button>
             </mat-radio-group>
 
-            @if (passwordStyle() === 'passphrase') {
-              <div class="passphrase-grid">
-                <label class="mini-range mini-range--flush">
-                  <span>Max words: {{ passphraseWordCount() }}</span>
-                  <input
-                    type="range"
-                    min="2"
-                    max="4"
-                    [value]="passphraseWordCount()"
-                    (input)="setPassphraseWordCount($event)"
-                  />
-                </label>
+            <label
+              class="theme-field theme-field--inline"
+              [class.control-disabled]="passwordStyle() !== 'themed'"
+            >
+              <span>Theme</span>
+              <select
+                [disabled]="passwordStyle() !== 'themed'"
+                [ngModel]="themedPassphraseTheme()"
+                (ngModelChange)="themedPassphraseTheme.set($event)"
+              >
+                @for (theme of themedPassphraseThemes; track theme.value) {
+                  <option [value]="theme.value">{{ theme.label }}</option>
+                }
+              </select>
+            </label>
 
-                <mat-radio-group
-                  class="compact-options"
-                  aria-label="Passphrase separator"
-                  [ngModel]="passphraseJoin()"
-                  (ngModelChange)="passphraseJoin.set($event)"
-                >
-                  <mat-radio-button value="none">No join</mat-radio-button>
-                  <mat-radio-button value="hyphen">Hyphen</mat-radio-button>
-                  <mat-radio-button value="dot">Dot</mat-radio-button>
-                </mat-radio-group>
+            <div
+              class="passphrase-grid"
+              [class.control-disabled]="
+                passwordStyle() !== 'passphrase' && passwordStyle() !== 'themed'
+              "
+            >
+              <label class="mini-range mini-range--flush">
+                <span>Max words: {{ passphraseWordCount() }}</span>
+                <input
+                  type="range"
+                  min="2"
+                  max="4"
+                  [disabled]="passwordStyle() !== 'passphrase' && passwordStyle() !== 'themed'"
+                  [value]="passphraseWordCount()"
+                  (input)="setPassphraseWordCount($event)"
+                />
+              </label>
 
-                <mat-radio-group
-                  class="compact-options compact-options--wide"
-                  aria-label="Capitalization"
-                  [ngModel]="capitalizationStyle()"
-                  (ngModelChange)="capitalizationStyle.set($event)"
-                >
-                  <mat-radio-button value="lowercase">lowercase</mat-radio-button>
-                  <mat-radio-button value="title">TitleCase</mat-radio-button>
-                  <mat-radio-button value="camel">camelCase</mat-radio-button>
-                </mat-radio-group>
-              </div>
-            }
+              <mat-radio-group
+                class="compact-options"
+                aria-label="Passphrase separator"
+                [disabled]="passwordStyle() !== 'passphrase' && passwordStyle() !== 'themed'"
+                [ngModel]="passphraseJoin()"
+                (ngModelChange)="passphraseJoin.set($event)"
+              >
+                <mat-radio-button value="none">No join</mat-radio-button>
+                <mat-radio-button value="hyphen">Hyphen</mat-radio-button>
+                <mat-radio-button value="dot">Dot</mat-radio-button>
+              </mat-radio-group>
+
+              <mat-radio-group
+                class="compact-options compact-options--wide"
+                aria-label="Capitalization"
+                [disabled]="passwordStyle() !== 'passphrase' && passwordStyle() !== 'themed'"
+                [ngModel]="capitalizationStyle()"
+                (ngModelChange)="capitalizationStyle.set($event)"
+              >
+                <mat-radio-button value="lowercase">lowercase</mat-radio-button>
+                <mat-radio-button value="title">TitleCase</mat-radio-button>
+                <mat-radio-button value="camel">camelCase</mat-radio-button>
+              </mat-radio-group>
+            </div>
 
             <div class="control-section">
               <span class="section-label">Ending</span>
@@ -452,36 +475,40 @@
               >
                 Special characters
               </mat-checkbox>
-              @if (includeSymbols() && endingPattern() === 'custom') {
-                <label class="mini-range">
-                  <span>Special character count: {{ symbolCharacterCount() }}</span>
-                  <input
-                    type="range"
-                    min="0"
-                    max="8"
-                    [value]="symbolCharacterCount()"
-                    (input)="setSymbolCharacterCount($event)"
-                  />
-                </label>
-              }
+              <label
+                class="mini-range"
+                [class.control-disabled]="!includeSymbols() || endingPattern() !== 'custom'"
+              >
+                <span>Special character count: {{ symbolCharacterCount() }}</span>
+                <input
+                  type="range"
+                  min="0"
+                  max="8"
+                  [disabled]="!includeSymbols() || endingPattern() !== 'custom'"
+                  [value]="symbolCharacterCount()"
+                  (input)="setSymbolCharacterCount($event)"
+                />
+              </label>
               <mat-checkbox
                 [ngModel]="includeNumbers()"
                 (ngModelChange)="includeNumbers.set($event)"
               >
                 Numbers
               </mat-checkbox>
-              @if (includeNumbers() && endingPattern() === 'custom') {
-                <label class="mini-range">
-                  <span>Number count: {{ numberCharacterCount() }}</span>
-                  <input
-                    type="range"
-                    min="0"
-                    max="8"
-                    [value]="numberCharacterCount()"
-                    (input)="setNumberCharacterCount($event)"
-                  />
-                </label>
-              }
+              <label
+                class="mini-range"
+                [class.control-disabled]="!includeNumbers() || endingPattern() !== 'custom'"
+              >
+                <span>Number count: {{ numberCharacterCount() }}</span>
+                <input
+                  type="range"
+                  min="0"
+                  max="8"
+                  [disabled]="!includeNumbers() || endingPattern() !== 'custom'"
+                  [value]="numberCharacterCount()"
+                  (input)="setNumberCharacterCount($event)"
+                />
+              </label>
               <mat-checkbox
                 [ngModel]="alternateHands()"
                 (ngModelChange)="alternateHands.set($event)"

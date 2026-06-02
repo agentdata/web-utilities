@@ -180,6 +180,44 @@ describe('App', () => {
     expect(words.every((word: string) => /^[A-Z][a-z]+$/.test(word))).toBe(true);
   });
 
+  it('can generate themed passphrases from the selected theme bank', () => {
+    const fixture = TestBed.createComponent(App);
+    const app = fixture.componentInstance as any;
+
+    app.passwordStyle.set('themed');
+    app.themedPassphraseTheme.set('starTrek');
+    app.includeNumbers.set(false);
+    app.includeSymbols.set(false);
+    app.capitalizationStyle.set('lowercase');
+    app.passphraseJoin.set('hyphen');
+    app.passphraseWordCount.set(4);
+    app.passwordLength.set(24);
+    app.generatePassword();
+
+    const wordBank = new Set(app.getPassphraseWordBank());
+    const words = app.generatedPassword().split('-');
+
+    expect(wordBank.has('enterprise')).toBe(true);
+    expect(words.length).toBeGreaterThanOrEqual(3);
+    expect(words.every((word: string) => wordBank.has(word))).toBe(true);
+  });
+
+  it('renders the themed password option and theme picker', async () => {
+    const fixture = TestBed.createComponent(App);
+    const app = fixture.componentInstance as any;
+
+    app.activeUtility.set('password');
+    app.passwordStyle.set('themed');
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+
+    expect(compiled.textContent).toContain('Themed');
+    expect(compiled.querySelector('select')?.textContent).toContain('Star Wars');
+    expect(compiled.querySelector('select')?.textContent).toContain('IT');
+  });
+
   it('uses password length as a passphrase target', () => {
     const fixture = TestBed.createComponent(App);
     const app = fixture.componentInstance as any;
