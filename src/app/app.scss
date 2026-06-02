@@ -190,8 +190,7 @@ mat-card-title {
 }
 
 .line-gutter-inner {
-  padding: 12px 8px 0;
-  transition: transform 80ms linear;
+  padding: 0 8px;
 
   span {
     display: block;
@@ -289,6 +288,10 @@ mat-card-title {
   background: #f59e0b;
   color: #1f1605;
   font-weight: 800;
+
+  &--summary {
+    background: #f8d487;
+  }
 }
 
 .copy-button {

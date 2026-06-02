@@ -71,7 +71,7 @@
             <div class="line-gutter" aria-hidden="true">
               <div
                 class="line-gutter-inner"
-                [style.transform]="'translateY(-' + inputScrollTop() + 'px)'"
+                [style.transform]="'translateY(' + inputGutterOffset() + 'px)'"
               >
                 @for (lineNumber of inputLineNumbers(); track lineNumber) {
                   <span>{{ lineNumber }}</span>
@@ -85,8 +85,8 @@
               rows="16"
               wrap="off"
               spellcheck="false"
-              [ngModel]="inputText()"
-              (ngModelChange)="inputText.set($event)"
+              [value]="inputText()"
+              (input)="setInputText($event)"
               (scroll)="setInputScroll($event)"
               placeholder="alpha&#10;bravo&#10;charlie"
             ></textarea>
@@ -116,7 +116,7 @@
             <div class="line-gutter" aria-hidden="true">
               <div
                 class="line-gutter-inner"
-                [style.transform]="'translateY(-' + resultScrollTop() + 'px)'"
+                [style.transform]="'translateY(' + resultGutterOffset() + 'px)'"
               >
                 @for (lineNumber of resultLineNumbers(); track lineNumber) {
                   <span>{{ lineNumber }}</span>
@@ -176,6 +176,11 @@
           @for (rowNumber of inputInsights().whitespaceRows; track rowNumber) {
             <span class="row-chip">{{ rowNumber }}</span>
           }
+          @if (inputInsights().whitespaceOverflow) {
+            <span class="row-chip row-chip--summary">
+              {{ getOverflowLabel(inputInsights().whitespaceOverflow) }}
+            </span>
+          }
         </div>
         <span>Use Clear edge whitespace to fix.</span>
       </div>
@@ -188,6 +193,11 @@
         <div class="row-chip-list" aria-label="Empty rows">
           @for (rowNumber of inputInsights().blankLineRows; track rowNumber) {
             <span class="row-chip">{{ rowNumber }}</span>
+          }
+          @if (inputInsights().blankLineOverflow) {
+            <span class="row-chip row-chip--summary">
+              {{ getOverflowLabel(inputInsights().blankLineOverflow) }}
+            </span>
           }
         </div>
         <span>Use Remove empty rows to fix.</span>
