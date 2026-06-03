@@ -24,7 +24,7 @@ type UtilityTab = 'quotes' | 'password';
 type PasswordSide = 'left' | 'right';
 type PasswordCategory = 'lowercase' | 'uppercase' | 'numbers' | 'symbols';
 type PasswordStyle = 'random' | 'smooth' | 'passphrase' | 'themed';
-type DisruptionPlacement = 'start' | 'custom' | 'end';
+type DisruptionPlacement = 'start' | 'betweenWords' | 'random' | 'end';
 type EndingPattern = 'none' | 'bangNumber' | 'bangTwoNumbers' | 'custom';
 type PassphraseJoin = 'none' | 'hyphen' | 'dot';
 type CapitalizationStyle = 'lowercase' | 'title' | 'camel';
@@ -1267,7 +1267,6 @@ export class App {
   protected readonly endingPattern = signal<EndingPattern>('bangNumber');
   protected readonly numberCharacterCount = signal(1);
   protected readonly symbolCharacterCount = signal(1);
-  protected readonly disruptionPosition = signal(70);
   protected readonly numberPlacement = signal<DisruptionPlacement>('end');
   protected readonly symbolPlacement = signal<DisruptionPlacement>('end');
   protected readonly avoidAmbiguous = signal(true);
@@ -1452,11 +1451,6 @@ export class App {
   protected setSymbolCharacterCount(event: Event): void {
     const count = Number((event.target as HTMLInputElement).value);
     this.symbolCharacterCount.set(Math.min(Math.max(count || 0, 0), 8));
-  }
-
-  protected setDisruptionPosition(event: Event): void {
-    const position = Number((event.target as HTMLInputElement).value);
-    this.disruptionPosition.set(Math.min(Math.max(position || 0, 0), 100));
   }
 
   protected setTypingInput(event: Event): void {
@@ -1876,10 +1870,9 @@ export class App {
   ): string {
     let password = core;
     const numbers = this.pickCharacters(pool, 'numbers', counts.numbers);
-    const symbols =
-      this.endingPattern() === 'custom'
-        ? this.pickCharacters(pool, 'symbols', counts.symbols)
-        : Array.from({ length: counts.symbols }, () => '!');
+    const symbols = this.usesBangSymbolPreset()
+      ? Array.from({ length: counts.symbols }, () => '!')
+      : this.pickCharacters(pool, 'symbols', counts.symbols);
 
     password = this.insertDisruptionGroup(password, numbers, this.numberPlacement());
     password = this.insertDisruptionGroup(password, symbols, this.symbolPlacement());
@@ -1905,23 +1898,71 @@ export class App {
     if (placement === 'end') {
       return `${core}${disruptions.join('')}`;
     }
+    if (placement === 'random') {
+      return this.insertAtIndex(core, disruptions, this.randomNumber(core.length + 1));
+    }
+    if (placement === 'betweenWords') {
+      return this.insertAtIndex(core, disruptions, this.getBetweenWordsInsertIndex(core));
+    }
 
+    return core;
+  }
+
+  private insertAtIndex(core: string, insertions: string[], index: number): string {
     const characters = core.split('');
-    const anchorIndex = Math.round((characters.length * this.disruptionPosition()) / 100);
+    const insertIndex = Math.min(Math.max(index, 0), characters.length);
 
-    disruptions.forEach((character, index) => {
-      const offset = index - Math.floor(disruptions.length / 2);
-      const insertIndex = Math.min(Math.max(anchorIndex + offset, 0), characters.length);
-      characters.splice(insertIndex, 0, character);
-    });
+    characters.splice(insertIndex, 0, ...insertions);
 
     return characters.join('');
   }
 
-  private getDisruptionCounts(): { numbers: number; symbols: number } {
-    if (this.endingPattern() === 'none') {
-      return { numbers: 0, symbols: 0 };
+  private getBetweenWordsInsertIndex(core: string): number {
+    const separator = this.getPassphraseSeparator();
+    const separatorIndexes =
+      this.passwordStyle() === 'passphrase' || this.passwordStyle() === 'themed'
+        ? this.getSeparatorIndexes(core, separator)
+        : [];
+
+    if (separatorIndexes.length) {
+      return this.pick(separatorIndexes);
     }
+
+    if (
+      (this.passwordStyle() === 'passphrase' || this.passwordStyle() === 'themed') &&
+      this.capitalizationStyle() !== 'lowercase'
+    ) {
+      const wordBoundaryIndexes = core
+        .split('')
+        .map((character, index) => ({ character, index }))
+        .filter(({ character, index }) => index > 0 && /[A-Z]/.test(character))
+        .map(({ index }) => index);
+
+      if (wordBoundaryIndexes.length) {
+        return this.pick(wordBoundaryIndexes);
+      }
+    }
+
+    return this.randomNumber(core.length + 1);
+  }
+
+  private getSeparatorIndexes(core: string, separator: string): number[] {
+    if (!separator) {
+      return [];
+    }
+
+    const indexes: number[] = [];
+    let searchIndex = core.indexOf(separator);
+
+    while (searchIndex >= 0) {
+      indexes.push(searchIndex);
+      searchIndex = core.indexOf(separator, searchIndex + separator.length);
+    }
+
+    return indexes;
+  }
+
+  private getDisruptionCounts(): { numbers: number; symbols: number } {
     if (this.endingPattern() === 'bangNumber') {
       return { numbers: this.includeNumbers() ? 1 : 0, symbols: this.includeSymbols() ? 1 : 0 };
     }
@@ -1936,6 +1977,10 @@ export class App {
       : 0;
 
     return { numbers, symbols };
+  }
+
+  private usesBangSymbolPreset(): boolean {
+    return this.endingPattern() === 'bangNumber' || this.endingPattern() === 'bangTwoNumbers';
   }
 
   private formatPassphraseWords(words: string[], categories: PasswordCategory[]): string[] {

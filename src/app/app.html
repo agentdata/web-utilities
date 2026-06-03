@@ -285,19 +285,8 @@
               {{ generatedPassword() || 'Generate a password to start.' }}
             </div>
 
-            @if (endingPattern() === 'custom') {
+            @if (includeNumbers() || includeSymbols()) {
               <div class="disruption-controls" aria-label="Number and special character placement">
-                <label>
-                  <span>Custom insert position</span>
-                  <input
-                    type="range"
-                    min="0"
-                    max="100"
-                    [disabled]="numberPlacement() !== 'custom' && symbolPlacement() !== 'custom'"
-                    [value]="disruptionPosition()"
-                    (input)="setDisruptionPosition($event)"
-                  />
-                </label>
                 <div class="placement-grid">
                   <div>
                     <span>Special characters</span>
@@ -307,7 +296,8 @@
                       (ngModelChange)="symbolPlacement.set($event)"
                     >
                       <mat-radio-button value="start">Start</mat-radio-button>
-                      <mat-radio-button value="custom">Custom</mat-radio-button>
+                      <mat-radio-button value="betweenWords">Between words</mat-radio-button>
+                      <mat-radio-button value="random">Random</mat-radio-button>
                       <mat-radio-button value="end">End</mat-radio-button>
                     </mat-radio-group>
                   </div>
@@ -319,7 +309,8 @@
                       (ngModelChange)="numberPlacement.set($event)"
                     >
                       <mat-radio-button value="start">Start</mat-radio-button>
-                      <mat-radio-button value="custom">Custom</mat-radio-button>
+                      <mat-radio-button value="betweenWords">Between words</mat-radio-button>
+                      <mat-radio-button value="random">Random</mat-radio-button>
                       <mat-radio-button value="end">End</mat-radio-button>
                     </mat-radio-group>
                   </div>
@@ -442,17 +433,17 @@
             </div>
 
             <div class="control-section">
-              <span class="section-label">Ending</span>
+              <span class="section-label">Numbers & symbols</span>
               <mat-radio-group
                 class="compact-options compact-options--wide"
-                aria-label="Ending pattern"
+                aria-label="Number and special character pattern"
                 [ngModel]="endingPattern()"
                 (ngModelChange)="endingPattern.set($event)"
               >
-                <mat-radio-button value="none">None</mat-radio-button>
-                <mat-radio-button value="bangNumber">!#</mat-radio-button>
-                <mat-radio-button value="bangTwoNumbers">!##</mat-radio-button>
-                <mat-radio-button value="custom">Custom</mat-radio-button>
+                <mat-radio-button value="none">Counts only</mat-radio-button>
+                <mat-radio-button value="bangNumber">Force !#</mat-radio-button>
+                <mat-radio-button value="bangTwoNumbers">Force !##</mat-radio-button>
+                <mat-radio-button value="custom">Custom counts</mat-radio-button>
               </mat-radio-group>
             </div>
 
@@ -469,46 +460,66 @@
               >
                 Uppercase
               </mat-checkbox>
-              <mat-checkbox
-                [ngModel]="includeSymbols()"
-                (ngModelChange)="includeSymbols.set($event)"
-              >
-                Special characters
-              </mat-checkbox>
-              <label
-                class="mini-range"
-                [class.control-disabled]="!includeSymbols() || endingPattern() !== 'custom'"
-              >
-                <span>Special character count: {{ symbolCharacterCount() }}</span>
-                <input
-                  type="range"
-                  min="0"
-                  max="8"
-                  [disabled]="!includeSymbols() || endingPattern() !== 'custom'"
-                  [value]="symbolCharacterCount()"
-                  (input)="setSymbolCharacterCount($event)"
-                />
-              </label>
-              <mat-checkbox
-                [ngModel]="includeNumbers()"
-                (ngModelChange)="includeNumbers.set($event)"
-              >
-                Numbers
-              </mat-checkbox>
-              <label
-                class="mini-range"
-                [class.control-disabled]="!includeNumbers() || endingPattern() !== 'custom'"
-              >
-                <span>Number count: {{ numberCharacterCount() }}</span>
-                <input
-                  type="range"
-                  min="0"
-                  max="8"
-                  [disabled]="!includeNumbers() || endingPattern() !== 'custom'"
-                  [value]="numberCharacterCount()"
-                  (input)="setNumberCharacterCount($event)"
-                />
-              </label>
+              <div class="option-stack">
+                <mat-checkbox
+                  [ngModel]="includeSymbols()"
+                  (ngModelChange)="includeSymbols.set($event)"
+                >
+                  Special characters
+                </mat-checkbox>
+                <label
+                  class="mini-range mini-range--nested"
+                  [class.control-disabled]="
+                    !includeSymbols() ||
+                    endingPattern() === 'bangNumber' ||
+                    endingPattern() === 'bangTwoNumbers'
+                  "
+                >
+                  <span>Count: {{ symbolCharacterCount() }}</span>
+                  <input
+                    type="range"
+                    min="0"
+                    max="8"
+                    [disabled]="
+                      !includeSymbols() ||
+                      endingPattern() === 'bangNumber' ||
+                      endingPattern() === 'bangTwoNumbers'
+                    "
+                    [value]="symbolCharacterCount()"
+                    (input)="setSymbolCharacterCount($event)"
+                  />
+                </label>
+              </div>
+              <div class="option-stack">
+                <mat-checkbox
+                  [ngModel]="includeNumbers()"
+                  (ngModelChange)="includeNumbers.set($event)"
+                >
+                  Numbers
+                </mat-checkbox>
+                <label
+                  class="mini-range mini-range--nested"
+                  [class.control-disabled]="
+                    !includeNumbers() ||
+                    endingPattern() === 'bangNumber' ||
+                    endingPattern() === 'bangTwoNumbers'
+                  "
+                >
+                  <span>Count: {{ numberCharacterCount() }}</span>
+                  <input
+                    type="range"
+                    min="0"
+                    max="8"
+                    [disabled]="
+                      !includeNumbers() ||
+                      endingPattern() === 'bangNumber' ||
+                      endingPattern() === 'bangTwoNumbers'
+                    "
+                    [value]="numberCharacterCount()"
+                    (input)="setNumberCharacterCount($event)"
+                  />
+                </label>
+              </div>
               <mat-checkbox
                 [ngModel]="alternateHands()"
                 (ngModelChange)="alternateHands.set($event)"

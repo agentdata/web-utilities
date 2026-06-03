@@ -128,6 +128,32 @@ describe('App', () => {
     expect(password.match(/[^a-z0-9]/gi)?.length).toBe(2);
   });
 
+  it('counts-only still adds selected numbers and symbols', () => {
+    const fixture = TestBed.createComponent(App);
+    const app = fixture.componentInstance as any;
+
+    app.passwordStyle.set('passphrase');
+    app.endingPattern.set('none');
+    app.numberCharacterCount.set(2);
+    app.symbolCharacterCount.set(2);
+    app.generatePassword();
+
+    const password = app.generatedPassword();
+
+    expect(password.match(/[0-9]/g)?.length).toBe(2);
+    expect(password.match(/[^a-z0-9]/gi)?.length).toBe(2);
+  });
+
+  it('can place generated additions between passphrase words', () => {
+    const fixture = TestBed.createComponent(App);
+    const app = fixture.componentInstance as any;
+
+    app.passwordStyle.set('passphrase');
+    app.passphraseJoin.set('hyphen');
+
+    expect(app.insertDisruptionGroup('alpha-bravo', ['9'], 'betweenWords')).toBe('alpha9-bravo');
+  });
+
   it('uses alternating-friendly words for passphrases when hand alternation is enabled', () => {
     const fixture = TestBed.createComponent(App);
     const app = fixture.componentInstance as any;
