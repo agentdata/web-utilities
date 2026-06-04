@@ -100,20 +100,23 @@
                   class="quote-options"
                   aria-label="Quote type"
                   [ngModel]="quoteType()"
-                  (ngModelChange)="quoteType.set($event)"
+                  (ngModelChange)="quoteType.set($event); saveQuoteOptions()"
                 >
                   <mat-radio-button value="double">Double</mat-radio-button>
                   <mat-radio-button value="single">Single</mat-radio-button>
                 </mat-radio-group>
 
-                <mat-checkbox [ngModel]="addCommas()" (ngModelChange)="addCommas.set($event)">
+                <mat-checkbox
+                  [ngModel]="addCommas()"
+                  (ngModelChange)="addCommas.set($event); saveQuoteOptions()"
+                >
                   Add commas
                 </mat-checkbox>
 
                 <mat-checkbox
                   [disabled]="!addCommas()"
                   [ngModel]="omitLastComma()"
-                  (ngModelChange)="omitLastComma.set($event)"
+                  (ngModelChange)="omitLastComma.set($event); saveQuoteOptions()"
                 >
                   Omit last comma
                 </mat-checkbox>

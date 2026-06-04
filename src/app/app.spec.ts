@@ -4,6 +4,8 @@ import { App } from './app';
 
 describe('App', () => {
   beforeEach(async () => {
+    document.cookie = 'quoteOptions=; path=/; max-age=31536000';
+
     await TestBed.configureTestingModule({
       imports: [App],
       providers: [provideNoopAnimations()],
@@ -44,6 +46,18 @@ describe('App', () => {
     expect(insights.whitespaceRowCount).toBe(500);
     expect(insights.whitespaceRows.length).toBe(200);
     expect(insights.whitespaceOverflow).toBe(300);
+  });
+
+  it('remembers quote options in a cookie', () => {
+    const fixture = TestBed.createComponent(App);
+    const app = fixture.componentInstance as any;
+
+    app.quoteType.set('single');
+    app.addCommas.set(false);
+    app.omitLastComma.set(false);
+    app.saveQuoteOptions();
+
+    expect(document.cookie).toContain('quoteOptions=s00');
   });
 
   it('generates an alternating-hand qwerty password by default', () => {

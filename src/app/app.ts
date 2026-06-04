@@ -48,6 +48,12 @@ type PasswordChar = {
   category: PasswordCategory;
 };
 
+type QuoteOptions = {
+  quoteType: QuoteType;
+  addCommas: boolean;
+  omitLastComma: boolean;
+};
+
 type TypingResult = {
   matchedCharacters: number;
   accuracy: number;
@@ -63,6 +69,7 @@ const QUOTE_BY_TYPE: Record<QuoteType, string> = {
   double: '"',
   single: "'",
 };
+const QUOTE_OPTIONS_COOKIE_NAME = 'quoteOptions';
 const EDITOR_VISIBLE_ROWS = 16;
 const EDITOR_LINE_HEIGHT = 23;
 const EDITOR_VERTICAL_PADDING = 12;
@@ -1390,6 +1397,14 @@ export class App {
   );
 
   constructor() {
+    const savedQuoteOptions = this.readQuoteOptionsCookie();
+
+    if (savedQuoteOptions) {
+      this.quoteType.set(savedQuoteOptions.quoteType);
+      this.addCommas.set(savedQuoteOptions.addCommas);
+      this.omitLastComma.set(savedQuoteOptions.omitLastComma);
+    }
+
     this.generatePassword();
   }
 
@@ -1675,6 +1690,31 @@ export class App {
       whitespaceRows,
       whitespaceOverflow,
       whitespaceRowCount,
+    };
+  }
+
+  protected saveQuoteOptions(): void {
+    const value = `${this.quoteType() === 'single' ? 's' : 'd'}${this.addCommas() ? 1 : 0}${
+      this.omitLastComma() ? 1 : 0
+    }`;
+
+    document.cookie = `${QUOTE_OPTIONS_COOKIE_NAME}=${value};path=/;max-age=31536000`;
+  }
+
+  private readQuoteOptionsCookie(): QuoteOptions | undefined {
+    const cookieValue = document.cookie
+      .split('; ')
+      .find((cookie) => cookie.startsWith(`${QUOTE_OPTIONS_COOKIE_NAME}=`))
+      ?.split('=')[1];
+
+    if (!cookieValue || cookieValue.length !== 3 || !'ds'.includes(cookieValue[0])) {
+      return undefined;
+    }
+
+    return {
+      quoteType: cookieValue[0] === 's' ? 'single' : 'double',
+      addCommas: cookieValue[1] === '1',
+      omitLastComma: cookieValue[2] === '1',
     };
   }
 
