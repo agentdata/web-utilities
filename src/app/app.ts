@@ -1252,9 +1252,9 @@ export class App {
 
   protected readonly inputText = signal('');
   protected readonly activeUtility = signal<UtilityTab>('quotes');
-  protected readonly quoteType = signal<QuoteType>('double');
+  protected readonly quoteType = signal<QuoteType>('single');
   protected readonly addCommas = signal(true);
-  protected readonly omitLastComma = signal(true);
+  protected readonly omitLastComma = signal(false);
   protected readonly copied = signal(false);
   protected readonly passwordCopied = signal(false);
   protected readonly generatedPassword = signal('');

@@ -14,8 +14,11 @@ describe('App', () => {
 
   it('should create the app', () => {
     const fixture = TestBed.createComponent(App);
-    const app = fixture.componentInstance;
+    const app = fixture.componentInstance as any;
+
     expect(app).toBeTruthy();
+    expect(app.quoteType()).toBe('single');
+    expect(app.omitLastComma()).toBe(false);
   });
 
   it('should render the quote tool', async () => {
