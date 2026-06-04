@@ -51,39 +51,12 @@
           <p class="eyebrow">Quote builder</p>
           <h2 id="quote-tool-title">Format rows</h2>
         </div>
-
-        <div class="controls">
-          <mat-radio-group
-            class="quote-options"
-            aria-label="Quote type"
-            [ngModel]="quoteType()"
-            (ngModelChange)="quoteType.set($event)"
-          >
-            <mat-radio-button value="double">Double</mat-radio-button>
-            <mat-radio-button value="single">Single</mat-radio-button>
-          </mat-radio-group>
-
-          <mat-checkbox [ngModel]="addCommas()" (ngModelChange)="addCommas.set($event)">
-            Add commas
-          </mat-checkbox>
-
-          <mat-checkbox
-            [disabled]="!addCommas()"
-            [ngModel]="omitLastComma()"
-            (ngModelChange)="omitLastComma.set($event)"
-          >
-            Omit last comma
-          </mat-checkbox>
-        </div>
       </div>
 
       <div class="editor-grid">
         <mat-card appearance="outlined" class="editor-card">
           <mat-card-header>
             <mat-card-title>Input</mat-card-title>
-            <span class="spacer"></span>
-            <button mat-button type="button" (click)="pasteInput()">Paste</button>
-            <button mat-button type="button" (click)="clearInput()">Clear</button>
           </mat-card-header>
 
           <mat-card-content>
@@ -111,23 +84,47 @@
                 placeholder="alpha&#10;bravo&#10;charlie"
               ></textarea>
             </label>
+
+            <div class="editor-actions editor-actions--input">
+              <div class="editor-button-row">
+                <button mat-flat-button color="primary" type="button" (click)="pasteInput()">
+                  Paste
+                </button>
+                <button mat-flat-button color="primary" type="button" (click)="clearInput()">
+                  Clear
+                </button>
+              </div>
+
+              <div class="controls">
+                <mat-radio-group
+                  class="quote-options"
+                  aria-label="Quote type"
+                  [ngModel]="quoteType()"
+                  (ngModelChange)="quoteType.set($event)"
+                >
+                  <mat-radio-button value="double">Double</mat-radio-button>
+                  <mat-radio-button value="single">Single</mat-radio-button>
+                </mat-radio-group>
+
+                <mat-checkbox [ngModel]="addCommas()" (ngModelChange)="addCommas.set($event)">
+                  Add commas
+                </mat-checkbox>
+
+                <mat-checkbox
+                  [disabled]="!addCommas()"
+                  [ngModel]="omitLastComma()"
+                  (ngModelChange)="omitLastComma.set($event)"
+                >
+                  Omit last comma
+                </mat-checkbox>
+              </div>
+            </div>
           </mat-card-content>
         </mat-card>
 
         <mat-card appearance="outlined" class="editor-card">
           <mat-card-header>
             <mat-card-title>Result</mat-card-title>
-            <span class="spacer"></span>
-            <button
-              mat-flat-button
-              color="primary"
-              type="button"
-              class="copy-button"
-              [class.copy-button--copied]="copied()"
-              (click)="copyResult()"
-            >
-              {{ copied() ? 'Copied' : 'Copy' }}
-            </button>
           </mat-card-header>
 
           <mat-card-content>
@@ -153,6 +150,19 @@
                 readonly
               ></textarea>
             </label>
+
+            <div class="editor-actions editor-actions--result">
+              <button
+                mat-flat-button
+                color="primary"
+                type="button"
+                class="copy-button"
+                [class.copy-button--copied]="copied()"
+                (click)="copyResult()"
+              >
+                {{ copied() ? 'Copied' : 'Copy' }}
+              </button>
+            </div>
           </mat-card-content>
         </mat-card>
       </div>
@@ -295,10 +305,30 @@
                       [ngModel]="symbolPlacement()"
                       (ngModelChange)="symbolPlacement.set($event)"
                     >
-                      <mat-radio-button value="start">Start</mat-radio-button>
-                      <mat-radio-button value="betweenWords">Between words</mat-radio-button>
-                      <mat-radio-button value="random">Random</mat-radio-button>
-                      <mat-radio-button value="end">End</mat-radio-button>
+                      <mat-radio-button
+                        value="start"
+                        matTooltip="Put generated special characters before the word or character core."
+                      >
+                        Start
+                      </mat-radio-button>
+                      <mat-radio-button
+                        value="betweenWords"
+                        matTooltip="Insert generated special characters at a passphrase word boundary when available."
+                      >
+                        Between words
+                      </mat-radio-button>
+                      <mat-radio-button
+                        value="random"
+                        matTooltip="Insert generated special characters at a random position."
+                      >
+                        Random
+                      </mat-radio-button>
+                      <mat-radio-button
+                        value="end"
+                        matTooltip="Put generated special characters after the word or character core."
+                      >
+                        End
+                      </mat-radio-button>
                     </mat-radio-group>
                   </div>
                   <div>
@@ -308,10 +338,30 @@
                       [ngModel]="numberPlacement()"
                       (ngModelChange)="numberPlacement.set($event)"
                     >
-                      <mat-radio-button value="start">Start</mat-radio-button>
-                      <mat-radio-button value="betweenWords">Between words</mat-radio-button>
-                      <mat-radio-button value="random">Random</mat-radio-button>
-                      <mat-radio-button value="end">End</mat-radio-button>
+                      <mat-radio-button
+                        value="start"
+                        matTooltip="Put generated numbers before the word or character core."
+                      >
+                        Start
+                      </mat-radio-button>
+                      <mat-radio-button
+                        value="betweenWords"
+                        matTooltip="Insert generated numbers at a passphrase word boundary when available."
+                      >
+                        Between words
+                      </mat-radio-button>
+                      <mat-radio-button
+                        value="random"
+                        matTooltip="Insert generated numbers at a random position."
+                      >
+                        Random
+                      </mat-radio-button>
+                      <mat-radio-button
+                        value="end"
+                        matTooltip="Put generated numbers after the word or character core."
+                      >
+                        End
+                      </mat-radio-button>
                     </mat-radio-group>
                   </div>
                 </div>
@@ -337,7 +387,10 @@
 
           <mat-card-content>
             <div class="control-grid">
-              <label class="length-field">
+              <label
+                class="length-field"
+                matTooltip="Sets the target password length. Passphrases aim near this length after numbers and symbols are included."
+              >
                 <span>Length</span>
                 <input
                   matInput
@@ -349,7 +402,10 @@
                 />
               </label>
 
-              <label class="mini-range mini-range--flush">
+              <label
+                class="mini-range mini-range--flush"
+                matTooltip="Controls how strongly the generator favors easier left/right hand typing rhythm."
+              >
                 <span>Smoothness: {{ smoothness() }}</span>
                 <input
                   type="range"
@@ -367,15 +423,36 @@
               [ngModel]="passwordStyle()"
               (ngModelChange)="passwordStyle.set($event)"
             >
-              <mat-radio-button value="random">Random</mat-radio-button>
-              <mat-radio-button value="smooth">Smooth</mat-radio-button>
-              <mat-radio-button value="passphrase">Passphrase</mat-radio-button>
-              <mat-radio-button value="themed">Themed</mat-radio-button>
+              <mat-radio-button
+                value="random"
+                matTooltip="Generates random characters from the selected character categories."
+              >
+                Random
+              </mat-radio-button>
+              <mat-radio-button
+                value="smooth"
+                matTooltip="Generates pronounceable letter patterns that are easier to type."
+              >
+                Smooth
+              </mat-radio-button>
+              <mat-radio-button
+                value="passphrase"
+                matTooltip="Generates a password from readable words, then adds selected numbers and symbols."
+              >
+                Passphrase
+              </mat-radio-button>
+              <mat-radio-button
+                value="themed"
+                matTooltip="Generates a passphrase using words from the selected theme."
+              >
+                Themed
+              </mat-radio-button>
             </mat-radio-group>
 
             <label
               class="theme-field theme-field--inline"
               [class.control-disabled]="passwordStyle() !== 'themed'"
+              matTooltip="Chooses the word bank used by the Themed password style."
             >
               <span>Theme</span>
               <select
@@ -395,7 +472,10 @@
                 passwordStyle() !== 'passphrase' && passwordStyle() !== 'themed'
               "
             >
-              <label class="mini-range mini-range--flush">
+              <label
+                class="mini-range mini-range--flush"
+                matTooltip="Sets the maximum number of words used in passphrase and themed passwords."
+              >
                 <span>Max words: {{ passphraseWordCount() }}</span>
                 <input
                   type="range"
@@ -410,25 +490,48 @@
               <mat-radio-group
                 class="compact-options"
                 aria-label="Passphrase separator"
+                matTooltip="Controls how passphrase words are joined together."
                 [disabled]="passwordStyle() !== 'passphrase' && passwordStyle() !== 'themed'"
                 [ngModel]="passphraseJoin()"
                 (ngModelChange)="passphraseJoin.set($event)"
               >
-                <mat-radio-button value="none">No join</mat-radio-button>
-                <mat-radio-button value="hyphen">Hyphen</mat-radio-button>
-                <mat-radio-button value="dot">Dot</mat-radio-button>
+                <mat-radio-button value="none" matTooltip="Joins words directly with no separator.">
+                  No join
+                </mat-radio-button>
+                <mat-radio-button value="hyphen" matTooltip="Joins words with hyphens.">
+                  Hyphen
+                </mat-radio-button>
+                <mat-radio-button value="dot" matTooltip="Joins words with dots.">
+                  Dot
+                </mat-radio-button>
               </mat-radio-group>
 
               <mat-radio-group
                 class="compact-options compact-options--wide"
                 aria-label="Capitalization"
+                matTooltip="Controls letter casing for passphrase and themed words."
                 [disabled]="passwordStyle() !== 'passphrase' && passwordStyle() !== 'themed'"
                 [ngModel]="capitalizationStyle()"
                 (ngModelChange)="capitalizationStyle.set($event)"
               >
-                <mat-radio-button value="lowercase">lowercase</mat-radio-button>
-                <mat-radio-button value="title">TitleCase</mat-radio-button>
-                <mat-radio-button value="camel">camelCase</mat-radio-button>
+                <mat-radio-button
+                  value="lowercase"
+                  matTooltip="Keeps every generated word lowercase."
+                >
+                  lowercase
+                </mat-radio-button>
+                <mat-radio-button
+                  value="title"
+                  matTooltip="Capitalizes the first letter of every generated word."
+                >
+                  TitleCase
+                </mat-radio-button>
+                <mat-radio-button
+                  value="camel"
+                  matTooltip="Leaves the first word lowercase and capitalizes following words."
+                >
+                  camelCase
+                </mat-radio-button>
               </mat-radio-group>
             </div>
 
@@ -440,10 +543,30 @@
                 [ngModel]="endingPattern()"
                 (ngModelChange)="endingPattern.set($event)"
               >
-                <mat-radio-button value="none">Counts only</mat-radio-button>
-                <mat-radio-button value="bangNumber">Force !#</mat-radio-button>
-                <mat-radio-button value="bangTwoNumbers">Force !##</mat-radio-button>
-                <mat-radio-button value="custom">Custom counts</mat-radio-button>
+                <mat-radio-button
+                  value="none"
+                  matTooltip="Uses the count sliders and selected placement without forcing a specific ending pattern."
+                >
+                  Counts only
+                </mat-radio-button>
+                <mat-radio-button
+                  value="bangNumber"
+                  matTooltip="Forces one exclamation point and one number, typically as an ending."
+                >
+                  Force !#
+                </mat-radio-button>
+                <mat-radio-button
+                  value="bangTwoNumbers"
+                  matTooltip="Forces one exclamation point and two numbers, typically as an ending."
+                >
+                  Force !##
+                </mat-radio-button>
+                <mat-radio-button
+                  value="custom"
+                  matTooltip="Uses the selected number and special character counts."
+                >
+                  Custom counts
+                </mat-radio-button>
               </mat-radio-group>
             </div>
 
@@ -451,12 +574,14 @@
               <mat-checkbox
                 [ngModel]="includeLowercase()"
                 (ngModelChange)="includeLowercase.set($event)"
+                matTooltip="Allows lowercase letters or lowercase word cores."
               >
                 Lowercase
               </mat-checkbox>
               <mat-checkbox
                 [ngModel]="includeUppercase()"
                 (ngModelChange)="includeUppercase.set($event)"
+                matTooltip="Allows uppercase letters or capitalization in generated words."
               >
                 Uppercase
               </mat-checkbox>
@@ -464,11 +589,13 @@
                 <mat-checkbox
                   [ngModel]="includeSymbols()"
                   (ngModelChange)="includeSymbols.set($event)"
+                  matTooltip="Allows generated special characters to be added."
                 >
                   Special characters
                 </mat-checkbox>
                 <label
                   class="mini-range mini-range--nested"
+                  matTooltip="Sets how many special characters to add when count-based patterns are active."
                   [class.control-disabled]="
                     !includeSymbols() ||
                     endingPattern() === 'bangNumber' ||
@@ -494,11 +621,13 @@
                 <mat-checkbox
                   [ngModel]="includeNumbers()"
                   (ngModelChange)="includeNumbers.set($event)"
+                  matTooltip="Allows generated numbers to be added."
                 >
                   Numbers
                 </mat-checkbox>
                 <label
                   class="mini-range mini-range--nested"
+                  matTooltip="Sets how many numbers to add when count-based patterns are active."
                   [class.control-disabled]="
                     !includeNumbers() ||
                     endingPattern() === 'bangNumber' ||
@@ -523,18 +652,21 @@
               <mat-checkbox
                 [ngModel]="alternateHands()"
                 (ngModelChange)="alternateHands.set($event)"
+                matTooltip="Favors passwords that alternate between left-hand and right-hand keyboard keys."
               >
                 Alternate left/right hands
               </mat-checkbox>
               <mat-checkbox
                 [ngModel]="avoidAmbiguous()"
                 (ngModelChange)="avoidAmbiguous.set($event)"
+                matTooltip="Avoids characters that are easy to confuse, like 0/O and 1/l/I."
               >
                 Avoid ambiguous characters
               </mat-checkbox>
               <mat-checkbox
                 [ngModel]="avoidAwkwardKeys()"
                 (ngModelChange)="avoidAwkwardKeys.set($event)"
+                matTooltip="Avoids harder-to-reach keys such as q, p, z, brackets, and slash."
               >
                 Avoid awkward keys
               </mat-checkbox>

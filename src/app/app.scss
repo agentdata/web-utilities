@@ -98,10 +98,6 @@
 }
 
 .tool-header {
-  display: grid;
-  grid-template-columns: minmax(220px, 1fr) auto;
-  gap: 24px;
-  align-items: start;
   margin-bottom: 12px;
 
   h2 {
@@ -115,7 +111,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 14px 22px;
-  justify-content: end;
+  justify-content: start;
   align-items: center;
 }
 
@@ -225,6 +221,32 @@ mat-card-title {
   white-space: pre;
   word-break: normal;
   overflow-wrap: normal;
+}
+
+.editor-actions {
+  display: grid;
+  gap: 12px 16px;
+  align-items: center;
+  margin-top: 12px;
+}
+
+.editor-actions--input {
+  grid-template-columns: 1fr;
+}
+
+.editor-actions--result {
+  grid-template-columns: 1fr;
+}
+
+.editor-button-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+
+  button {
+    flex: 1 1 160px;
+  }
 }
 
 .secondary-tools {
@@ -813,7 +835,6 @@ mat-card-title {
     padding-top: 32px;
   }
 
-  .tool-header,
   .editor-grid,
   .password-grid,
   .footer-inner {
@@ -824,7 +845,6 @@ mat-card-title {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .controls,
   .password-actions,
   .footer-meta {
     justify-content: start;
