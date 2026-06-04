@@ -1426,7 +1426,7 @@ export class App {
       }
 
       const text = await navigator.clipboard?.readText();
-      this.inputText.set(text ?? '');
+      this.inputText.set(this.normalizePastedInput(text ?? ''));
     } catch {
       this.inputTextarea()?.nativeElement.focus();
       this.showMessage(
@@ -1440,7 +1440,13 @@ export class App {
   }
 
   protected setInputText(event: Event): void {
-    this.inputText.set((event.target as HTMLTextAreaElement).value);
+    const value = (event.target as HTMLTextAreaElement).value;
+
+    this.inputText.set(
+      (event as InputEvent).inputType === 'insertFromPaste'
+        ? this.normalizePastedInput(value)
+        : value,
+    );
   }
 
   protected setPasswordLength(event: Event): void {
@@ -1716,6 +1722,10 @@ export class App {
       addCommas: cookieValue[1] === '1',
       omitLastComma: cookieValue[2] === '1',
     };
+  }
+
+  private normalizePastedInput(value: string): string {
+    return value.replace(/(?:\r\n|\r|\n)+$/, '');
   }
 
   private showMessage(message: string): void {

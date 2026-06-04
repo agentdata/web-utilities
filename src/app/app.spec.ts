@@ -63,6 +63,19 @@ describe('App', () => {
     expect(document.cookie).toContain('quoteOptions=s00');
   });
 
+  it('removes terminal line breaks from pasted quote input', () => {
+    const fixture = TestBed.createComponent(App);
+    const app = fixture.componentInstance as any;
+
+    app.setInputText({
+      inputType: 'insertFromPaste',
+      target: { value: 'alpha\nbravo\n' },
+    } as unknown as Event);
+
+    expect(app.inputText()).toBe('alpha\nbravo');
+    expect(app.resultText()).toBe("'alpha',\n'bravo',");
+  });
+
   it('generates an alternating-hand qwerty password by default', () => {
     const fixture = TestBed.createComponent(App);
     const app = fixture.componentInstance as any;
