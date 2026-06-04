@@ -251,7 +251,7 @@ mat-card-title {
 
 .secondary-tools {
   display: grid;
-  grid-template-columns: minmax(150px, 0.7fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) minmax(150px, 0.7fr);
   gap: 14px;
   align-items: center;
   margin-top: 20px;
@@ -278,11 +278,15 @@ mat-card-title {
   }
 }
 
+.secondary-tools > div:last-child {
+  text-align: right;
+}
+
 .secondary-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  justify-content: end;
+  justify-content: start;
 }
 
 .input-warning {
@@ -856,6 +860,10 @@ mat-card-title {
 
   .secondary-actions {
     justify-content: start;
+  }
+
+  .secondary-tools > div:last-child {
+    text-align: left;
   }
 
   .options-card {
