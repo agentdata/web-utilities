@@ -1,5 +1,6 @@
 import {
   Component,
+  DestroyRef,
   ElementRef,
   HostListener,
   computed,
@@ -7,6 +8,7 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -18,6 +20,8 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { NavigationEnd, Router, RouterLink } from '@angular/router';
+import { filter } from 'rxjs';
 
 type QuoteType = 'double' | 'single';
 type UtilityTab = 'quotes' | 'password';
@@ -1242,12 +1246,15 @@ type InputInsights = {
     MatTabsModule,
     MatToolbarModule,
     MatTooltipModule,
+    RouterLink,
   ],
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })
 export class App {
   private readonly snackBar = inject(MatSnackBar);
+  private readonly router = inject(Router);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly inputTextarea = viewChild<ElementRef<HTMLTextAreaElement>>('inputTextarea');
 
   protected readonly inputText = signal('');
@@ -1397,6 +1404,14 @@ export class App {
   );
 
   constructor() {
+    this.setActiveUtilityFromUrl(this.router.url);
+    this.router.events
+      .pipe(
+        filter((event): event is NavigationEnd => event instanceof NavigationEnd),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((event) => this.setActiveUtilityFromUrl(event.urlAfterRedirects));
+
     const savedQuoteOptions = this.readQuoteOptionsCookie();
 
     if (savedQuoteOptions) {
@@ -1406,6 +1421,10 @@ export class App {
     }
 
     this.generatePassword();
+  }
+
+  private setActiveUtilityFromUrl(url: string): void {
+    this.activeUtility.set(url.split('?')[0].includes('/password-tool') ? 'password' : 'quotes');
   }
 
   @HostListener('window:scroll')

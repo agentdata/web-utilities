@@ -1,6 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
+import { provideRouter, Router } from '@angular/router';
 import { App } from './app';
+import { routes } from './app.routes';
 
 describe('App', () => {
   beforeEach(async () => {
@@ -8,7 +10,7 @@ describe('App', () => {
 
     await TestBed.configureTestingModule({
       imports: [App],
-      providers: [provideNoopAnimations()],
+      providers: [provideNoopAnimations(), provideRouter(routes)],
     }).compileComponents();
   });
 
@@ -258,11 +260,12 @@ describe('App', () => {
     expect(words.every((word: string) => wordBank.has(word))).toBe(true);
   });
 
-  it('renders the themed password option and theme picker', async () => {
+  it('renders the themed password option and theme picker on the password route', async () => {
+    const router = TestBed.inject(Router);
     const fixture = TestBed.createComponent(App);
     const app = fixture.componentInstance as any;
 
-    app.activeUtility.set('password');
+    await router.navigateByUrl('/password-tool');
     app.passwordStyle.set('themed');
     fixture.detectChanges();
     await fixture.whenStable();

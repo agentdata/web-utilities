@@ -5,13 +5,13 @@
   </div>
 
   <nav class="utility-tabs" mat-tab-nav-bar [tabPanel]="tabPanel" aria-label="Utility tabs">
-    <a mat-tab-link [active]="activeUtility() === 'quotes'" (click)="activeUtility.set('quotes')">
+    <a mat-tab-link routerLink="/quotes-tool" [active]="activeUtility() === 'quotes'">
       Add Quotes
     </a>
     <a
       mat-tab-link
+      routerLink="/password-tool"
       [active]="activeUtility() === 'password'"
-      (click)="activeUtility.set('password')"
     >
       Password Generator
     </a>
