@@ -249,40 +249,7 @@ mat-card-title {
   }
 }
 
-.secondary-tools {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(150px, 0.7fr);
-  gap: 14px;
-  align-items: center;
-  margin-top: 20px;
-  padding: 12px;
-  border: 1px solid rgba(24, 32, 47, 0.1);
-  border-radius: 8px;
-  background: #ffffff;
-
-  strong,
-  span {
-    display: block;
-  }
-
-  strong {
-    color: #18202f;
-    font-size: 0.9rem;
-  }
-
-  span {
-    margin-top: 3px;
-    color: #5b6475;
-    font-size: 0.82rem;
-    line-height: 1.35;
-  }
-}
-
-.secondary-tools > div:last-child {
-  text-align: right;
-}
-
-.secondary-actions {
+.cleanup-button-row {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
@@ -852,18 +819,6 @@ mat-card-title {
   .password-actions,
   .footer-meta {
     justify-content: start;
-  }
-
-  .secondary-tools {
-    grid-template-columns: 1fr;
-  }
-
-  .secondary-actions {
-    justify-content: start;
-  }
-
-  .secondary-tools > div:last-child {
-    text-align: left;
   }
 
   .options-card {

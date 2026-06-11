@@ -95,31 +95,25 @@
                 </button>
               </div>
 
-              <div class="controls">
-                <mat-radio-group
-                  class="quote-options"
-                  aria-label="Quote type"
-                  [ngModel]="quoteType()"
-                  (ngModelChange)="quoteType.set($event); saveQuoteOptions()"
+              <div class="cleanup-button-row" aria-label="Input cleanup tools">
+                <button
+                  mat-stroked-button
+                  type="button"
+                  matTooltip="Removes double quotes, single quotes, backticks, and commas from the input."
+                  (click)="removeQuotesAndCommas()"
                 >
-                  <mat-radio-button value="single">Single</mat-radio-button>
-                  <mat-radio-button value="double">Double</mat-radio-button>
-                </mat-radio-group>
-
-                <mat-checkbox
-                  [ngModel]="addCommas()"
-                  (ngModelChange)="addCommas.set($event); saveQuoteOptions()"
-                >
-                  Add commas
-                </mat-checkbox>
-
-                <mat-checkbox
-                  [disabled]="!addCommas()"
-                  [ngModel]="omitLastComma()"
-                  (ngModelChange)="omitLastComma.set($event); saveQuoteOptions()"
-                >
-                  Omit last comma
-                </mat-checkbox>
+                  Remove quotes/commas
+                </button>
+                <button mat-stroked-button type="button" (click)="trimRows()">
+                  Clear edge whitespace
+                </button>
+                <button mat-stroked-button type="button" (click)="deduplicateRows()">
+                  Deduplicate rows
+                </button>
+                <button mat-stroked-button type="button" (click)="removeEmptyRows()">
+                  Remove empty rows
+                </button>
+                <button mat-stroked-button type="button" (click)="sortRows()">Sort rows</button>
               </div>
             </div>
           </mat-card-content>
@@ -165,37 +159,35 @@
               >
                 {{ copied() ? 'Copied' : 'Copy' }}
               </button>
+              <div class="controls">
+                <mat-radio-group
+                  class="quote-options"
+                  aria-label="Quote type"
+                  [ngModel]="quoteType()"
+                  (ngModelChange)="quoteType.set($event); saveQuoteOptions()"
+                >
+                  <mat-radio-button value="single">Single</mat-radio-button>
+                  <mat-radio-button value="double">Double</mat-radio-button>
+                </mat-radio-group>
+
+                <mat-checkbox
+                  [ngModel]="addCommas()"
+                  (ngModelChange)="addCommas.set($event); saveQuoteOptions()"
+                >
+                  Add commas
+                </mat-checkbox>
+
+                <mat-checkbox
+                  [disabled]="!addCommas()"
+                  [ngModel]="omitLastComma()"
+                  (ngModelChange)="omitLastComma.set($event); saveQuoteOptions()"
+                >
+                  Omit last comma
+                </mat-checkbox>
+              </div>
             </div>
           </mat-card-content>
         </mat-card>
-      </div>
-
-      <div class="secondary-tools" aria-label="Input cleanup tools">
-        <div class="secondary-actions">
-          <button
-            mat-stroked-button
-            type="button"
-            matTooltip="Removes double quotes, single quotes, backticks, and commas from the input."
-            (click)="removeQuotesAndCommas()"
-          >
-            Remove quotes/commas
-          </button>
-          <button mat-stroked-button type="button" (click)="trimRows()">
-            Clear edge whitespace
-          </button>
-          <button mat-stroked-button type="button" (click)="deduplicateRows()">
-            Deduplicate rows
-          </button>
-          <button mat-stroked-button type="button" (click)="removeEmptyRows()">
-            Remove empty rows
-          </button>
-          <button mat-stroked-button type="button" (click)="sortRows()">Sort rows</button>
-        </div>
-
-        <div>
-          <strong>Cleanup</strong>
-          <span>Optional input transforms before formatting.</span>
-        </div>
       </div>
 
       @if (inputInsights().whitespaceRows.length) {
