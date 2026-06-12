@@ -261,15 +261,15 @@ mat-card-title {
   gap: 8px;
   margin: 12px 0 0;
   padding: 12px;
-  border: 1px solid rgba(181, 96, 0, 0.28);
+  border: 1px solid #f4c430;
   border-radius: 8px;
-  background: #fff7ed;
-  color: #7a4100;
+  background: #fff8d6;
+  color: #5f4700;
   font-size: 0.9rem;
   line-height: 1.4;
 
   strong {
-    color: #593000;
+    color: #5f4700;
   }
 }
 
@@ -287,12 +287,12 @@ mat-card-title {
   justify-content: center;
   padding: 0 8px;
   border-radius: 999px;
-  background: #f59e0b;
-  color: #1f1605;
+  background: #f4c430;
+  color: #3f3000;
   font-weight: 800;
 
   &--summary {
-    background: #f8d487;
+    background: #f8e9a4;
   }
 }
 

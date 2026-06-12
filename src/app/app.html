@@ -193,7 +193,7 @@
       @if (inputInsights().whitespaceRows.length) {
         <div class="input-warning" role="status">
           <strong>Whitespace detected</strong>
-          <span>Rows:</span>
+          <span>Row numbers:</span>
           <div class="row-chip-list" aria-label="Rows with surrounding whitespace">
             @for (rowNumber of inputInsights().whitespaceRows; track rowNumber) {
               <span class="row-chip">{{ rowNumber }}</span>
@@ -211,7 +211,7 @@
       @if (inputInsights().blankLineRows.length) {
         <div class="input-warning" role="status">
           <strong>Empty rows detected</strong>
-          <span>Rows:</span>
+          <span>Row numbers:</span>
           <div class="row-chip-list" aria-label="Empty rows">
             @for (rowNumber of inputInsights().blankLineRows; track rowNumber) {
               <span class="row-chip">{{ rowNumber }}</span>
@@ -243,7 +243,11 @@
           <span>Duplicate rows</span>
           <strong>{{ inputInsights().duplicateRows }}</strong>
         </mat-card>
-        <mat-card appearance="outlined" class="stat-card">
+        <mat-card
+          appearance="outlined"
+          class="stat-card"
+          [class.stat-card--warning]="inputInsights().blankLines > 0"
+        >
           <span>Blank lines</span>
           <strong>{{ inputInsights().blankLines }}</strong>
         </mat-card>
