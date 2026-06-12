@@ -348,6 +348,19 @@ mat-card-title {
   }
 }
 
+.stat-card--warning {
+  border-color: #f4c430;
+  background: #fff8d6;
+
+  span {
+    color: #7a5a00;
+  }
+
+  strong {
+    color: #5f4700;
+  }
+}
+
 .password-surface {
   background: linear-gradient(135deg, rgba(20, 131, 59, 0.08), transparent 28rem), #ffffff;
 }

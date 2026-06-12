@@ -235,7 +235,11 @@
           <span>Input characters</span>
           <strong>{{ inputStats().characters }}</strong>
         </mat-card>
-        <mat-card appearance="outlined" class="stat-card">
+        <mat-card
+          appearance="outlined"
+          class="stat-card"
+          [class.stat-card--warning]="inputInsights().duplicateRows > 0"
+        >
           <span>Duplicate rows</span>
           <strong>{{ inputInsights().duplicateRows }}</strong>
         </mat-card>
