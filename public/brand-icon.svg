@@ -1,8 +1,24 @@
 <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect width="64" height="64" rx="14" fill="#1F6FEB"/>
-  <rect x="9" y="9" width="46" height="46" rx="10" fill="#FFFFFF" fill-opacity="0.12"/>
-  <path d="M20 22H15V35H25V22H22.5C22.5 18.9 24.1 17.2 27 16.8V13C22.4 13.5 20 16.6 20 22Z" fill="#FFFFFF"/>
-  <path d="M42 22H37V35H47V22H44.5C44.5 18.9 46.1 17.2 49 16.8V13C44.4 13.5 42 16.6 42 22Z" fill="#FFFFFF"/>
-  <path d="M16 43H48" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round"/>
-  <path d="M16 50H36" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round" opacity="0.82"/>
+  <defs>
+    <linearGradient id="background" x1="9" y1="5" x2="55" y2="59" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#34C6FF"/>
+      <stop offset="0.52" stop-color="#1F6FEB"/>
+      <stop offset="1" stop-color="#0B2D66"/>
+    </linearGradient>
+    <linearGradient id="panel" x1="18" y1="15" x2="48" y2="50" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFFFF" stop-opacity="0.34"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0.12"/>
+    </linearGradient>
+    <filter id="shadow" x="-7" y="-6" width="78" height="78" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="8" stdDeviation="6" flood-color="#071B3F" flood-opacity="0.28"/>
+    </filter>
+  </defs>
+  <rect x="3" y="3" width="58" height="58" rx="17" fill="url(#background)" filter="url(#shadow)"/>
+  <rect x="10" y="10" width="44" height="44" rx="13" fill="url(#panel)" stroke="#FFFFFF" stroke-opacity="0.22"/>
+  <path d="M21 25L27.5 31.5L21 38" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M32 25H44" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round"/>
+  <path d="M32 33H44" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round" opacity="0.9"/>
+  <path d="M32 41H40" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round" opacity="0.72"/>
+  <circle cx="48" cy="17" r="3" fill="#9DF7FF"/>
+  <circle cx="16" cy="47" r="2" fill="#B8D7FF" opacity="0.92"/>
 </svg>
