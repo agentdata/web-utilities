@@ -87,10 +87,27 @@
 
             <div class="editor-actions editor-actions--input">
               <div class="editor-button-row">
-                <button mat-flat-button color="primary" type="button" (click)="pasteInput()">
+                <button
+                  mat-flat-button color="primary"
+                  type="button" 
+                  matTooltip="Clear and paste"
+                  (click)="pasteInput()" >
                   Paste
                 </button>
-                <button mat-flat-button color="primary" type="button" (click)="clearInput()">
+                <button
+                  mat-flat-button
+                  color="primary"
+                  type="button"
+                  matTooltip="Append to input"
+                  (click)="addInput()"
+                >
+                  Add
+                </button>
+                <button
+                  mat-flat-button color="primary"
+                  type="button" 
+                  matTooltip="Clear input"
+                  (click)="clearInput()">
                   Clear
                 </button>
               </div>

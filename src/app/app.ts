@@ -1454,6 +1454,27 @@ export class App {
     }
   }
 
+  protected async addInput(): Promise<void> {
+    try {
+      if (!navigator.clipboard?.readText) {
+        throw new Error('Clipboard API unavailable.');
+      }
+
+      const text = this.normalizePastedInput((await navigator.clipboard.readText()) ?? '');
+
+      if (!text) {
+        return;
+      }
+
+      this.inputText.update((value) => (value ? `${value}\n${text}` : text));
+    } catch {
+      this.inputTextarea()?.nativeElement.focus();
+      this.showMessage(
+        'Browser blocked clipboard access. The input is focused; press Cmd+V to paste.',
+      );
+    }
+  }
+
   protected setInputScroll(event: Event): void {
     this.inputScrollTop.set((event.target as HTMLTextAreaElement).scrollTop);
   }
