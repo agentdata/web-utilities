@@ -57,10 +57,17 @@
         <mat-card appearance="outlined" class="editor-card">
           <mat-card-header>
             <mat-card-title>Input</mat-card-title>
+            <span
+              role="status"
+              aria-live="polite"
+              [class]="getFeedbackBadgeClass('input')"
+            >
+              {{ getQuoteFeedbackMessage('input') }}
+            </span>
           </mat-card-header>
 
           <mat-card-content>
-            <label class="code-field">
+            <label [class]="getCodeFieldClass('input')">
               <div class="line-gutter" aria-hidden="true">
                 <div
                   class="line-gutter-inner"
@@ -88,27 +95,37 @@
             <div class="editor-actions editor-actions--input">
               <div class="editor-button-row">
                 <button
-                  mat-flat-button color="primary"
-                  type="button" 
+                  mat-flat-button
+                  color="primary"
+                  type="button"
+                  class="action-button"
+                  [class.action-button--active]="isQuoteActionActive('paste')"
                   matTooltip="Clear and paste"
-                  (click)="pasteInput()" >
-                  Paste
+                  (click)="pasteInput()"
+                >
+                  {{ getQuoteActionLabel('paste', 'Paste') }}
                 </button>
                 <button
                   mat-flat-button
                   color="primary"
                   type="button"
+                  class="action-button"
+                  [class.action-button--active]="isQuoteActionActive('add')"
                   matTooltip="Append to input"
                   (click)="addInput()"
                 >
-                  Add
+                  {{ getQuoteActionLabel('add', 'Add') }}
                 </button>
                 <button
-                  mat-flat-button color="primary"
-                  type="button" 
+                  mat-flat-button
+                  color="primary"
+                  type="button"
+                  class="action-button"
+                  [class.action-button--active]="isQuoteActionActive('clear')"
                   matTooltip="Clear input"
-                  (click)="clearInput()">
-                  Clear
+                  (click)="clearInput()"
+                >
+                  {{ getQuoteActionLabel('clear', 'Clear') }}
                 </button>
               </div>
 
@@ -116,21 +133,49 @@
                 <button
                   mat-stroked-button
                   type="button"
+                  class="action-button"
+                  [class.action-button--active]="isQuoteActionActive('removeQuotes')"
                   matTooltip="Removes double quotes, single quotes, backticks, and commas from the input."
                   (click)="removeQuotesAndCommas()"
                 >
-                  Remove quotes/commas
+                  {{ getQuoteActionLabel('removeQuotes', 'Remove quotes/commas') }}
                 </button>
-                <button mat-stroked-button type="button" (click)="trimRows()">
-                  Clear edge whitespace
+                <button
+                  mat-stroked-button
+                  type="button"
+                  class="action-button"
+                  [class.action-button--active]="isQuoteActionActive('trim')"
+                  (click)="trimRows()"
+                >
+                  {{ getQuoteActionLabel('trim', 'Clear edge whitespace') }}
                 </button>
-                <button mat-stroked-button type="button" (click)="deduplicateRows()">
-                  Deduplicate rows
+                <button
+                  mat-stroked-button
+                  type="button"
+                  class="action-button"
+                  [class.action-button--active]="isQuoteActionActive('deduplicate')"
+                  (click)="deduplicateRows()"
+                >
+                  {{ getQuoteActionLabel('deduplicate', 'Deduplicate rows') }}
                 </button>
-                <button mat-stroked-button type="button" (click)="removeEmptyRows()">
-                  Remove empty rows
+                <button
+                  mat-stroked-button
+                  type="button"
+                  class="action-button"
+                  [class.action-button--active]="isQuoteActionActive('removeEmpty')"
+                  (click)="removeEmptyRows()"
+                >
+                  {{ getQuoteActionLabel('removeEmpty', 'Remove empty rows') }}
                 </button>
-                <button mat-stroked-button type="button" (click)="sortRows()">Sort rows</button>
+                <button
+                  mat-stroked-button
+                  type="button"
+                  class="action-button"
+                  [class.action-button--active]="isQuoteActionActive('sort')"
+                  (click)="sortRows()"
+                >
+                  {{ getQuoteActionLabel('sort', 'Sort rows') }}
+                </button>
               </div>
             </div>
           </mat-card-content>
@@ -139,10 +184,17 @@
         <mat-card appearance="outlined" class="editor-card">
           <mat-card-header>
             <mat-card-title>Result</mat-card-title>
+            <span
+              role="status"
+              aria-live="polite"
+              [class]="getFeedbackBadgeClass('result')"
+            >
+              {{ getQuoteFeedbackMessage('result') }}
+            </span>
           </mat-card-header>
 
           <mat-card-content>
-            <label class="code-field">
+            <label [class]="getCodeFieldClass('result')">
               <div class="line-gutter" aria-hidden="true">
                 <div
                   class="line-gutter-inner"
@@ -170,8 +222,9 @@
                 mat-flat-button
                 color="primary"
                 type="button"
-                class="copy-button"
+                class="copy-button action-button"
                 [class.copy-button--copied]="copied()"
+                [class.action-button--active]="isQuoteActionActive('copy')"
                 (click)="copyResult()"
               >
                 {{ copied() ? 'Copied' : 'Copy' }}

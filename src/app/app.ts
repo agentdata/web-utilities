@@ -25,6 +25,24 @@ import { filter } from 'rxjs';
 
 type QuoteType = 'double' | 'single';
 type UtilityTab = 'quotes' | 'password';
+type QuoteAction =
+  | 'paste'
+  | 'add'
+  | 'clear'
+  | 'removeQuotes'
+  | 'trim'
+  | 'deduplicate'
+  | 'removeEmpty'
+  | 'sort'
+  | 'copy';
+type QuoteFeedbackTarget = 'input' | 'result';
+type QuoteFeedbackTone = 'primary' | 'cleanup' | 'success';
+type QuoteFeedback = {
+  id: number;
+  target: QuoteFeedbackTarget;
+  message: string;
+  tone: QuoteFeedbackTone;
+};
 type PasswordSide = 'left' | 'right';
 type PasswordCategory = 'lowercase' | 'uppercase' | 'numbers' | 'symbols';
 type PasswordStyle = 'random' | 'smooth' | 'passphrase' | 'themed';
@@ -1263,6 +1281,8 @@ export class App {
   protected readonly addCommas = signal(true);
   protected readonly omitLastComma = signal(false);
   protected readonly copied = signal(false);
+  protected readonly activeQuoteAction = signal<QuoteAction | undefined>(undefined);
+  protected readonly quoteFeedback = signal<QuoteFeedback | undefined>(undefined);
   protected readonly passwordCopied = signal(false);
   protected readonly generatedPassword = signal('');
   protected readonly passwordLength = signal(18);
@@ -1293,6 +1313,9 @@ export class App {
   protected readonly resultScrollTop = signal(0);
 
   private lastScrollY = 0;
+  private quoteFeedbackId = 0;
+  private quoteActionTimer: ReturnType<typeof setTimeout> | undefined;
+  private quoteFeedbackTimer: ReturnType<typeof setTimeout> | undefined;
   private copiedTimer: ReturnType<typeof setTimeout> | undefined;
   private passwordCopiedTimer: ReturnType<typeof setTimeout> | undefined;
   private recentPassphraseWords: string[] = [];
@@ -1445,7 +1468,15 @@ export class App {
       }
 
       const text = await navigator.clipboard?.readText();
-      this.inputText.set(this.normalizePastedInput(text ?? ''));
+      const normalizedText = this.normalizePastedInput(text ?? '');
+
+      this.inputText.set(normalizedText);
+      this.showQuoteFeedback(
+        'paste',
+        'input',
+        normalizedText ? `Pasted ${this.getRowLabel(normalizedText)}` : 'Pasted empty clipboard',
+        'primary',
+      );
     } catch {
       this.inputTextarea()?.nativeElement.focus();
       this.showMessage(
@@ -1463,10 +1494,12 @@ export class App {
       const text = this.normalizePastedInput((await navigator.clipboard.readText()) ?? '');
 
       if (!text) {
+        this.showQuoteFeedback('add', 'input', 'Nothing to add', 'primary');
         return;
       }
 
       this.inputText.update((value) => (value ? `${value}\n${text}` : text));
+      this.showQuoteFeedback('add', 'input', `Added ${this.getRowLabel(text)}`, 'primary');
     } catch {
       this.inputTextarea()?.nativeElement.focus();
       this.showMessage(
@@ -1538,10 +1571,22 @@ export class App {
 
   protected clearInput(): void {
     this.inputText.set('');
+    this.showQuoteFeedback('clear', 'input', 'Cleared input', 'primary');
   }
 
   protected removeQuotesAndCommas(): void {
-    this.inputText.update((value) => value.replace(/[,"'`]/g, ''));
+    const inputText = this.inputText();
+    const removedCharacters = inputText.match(/[,"'`]/g)?.length ?? 0;
+
+    this.inputText.set(inputText.replace(/[,"'`]/g, ''));
+    this.showQuoteFeedback(
+      'removeQuotes',
+      'input',
+      removedCharacters
+        ? `Removed ${removedCharacters} character${removedCharacters === 1 ? '' : 's'}`
+        : 'No quotes or commas found',
+      'cleanup',
+    );
   }
 
   protected trimRows(): void {
@@ -1554,10 +1599,13 @@ export class App {
         .join('\n'),
     );
 
-    this.showMessage(
+    this.showQuoteFeedback(
+      'trim',
+      'input',
       rowsWithWhitespace
         ? `Cleared leading/trailing whitespace from ${rowsWithWhitespace} row${rowsWithWhitespace === 1 ? '' : 's'}.`
-        : 'No leading or trailing whitespace found.',
+        : 'No edge whitespace found',
+      'cleanup',
     );
   }
 
@@ -1586,10 +1634,13 @@ export class App {
         .join('\n'),
     );
 
-    this.showMessage(
+    this.showQuoteFeedback(
+      'deduplicate',
+      'input',
       removedRows
         ? `Removed ${removedRows} duplicate row${removedRows === 1 ? '' : 's'}.`
-        : 'No duplicate rows found.',
+        : 'No duplicate rows found',
+      'cleanup',
     );
   }
 
@@ -1610,31 +1661,141 @@ export class App {
         .join('\n'),
     );
 
-    this.showMessage(
+    this.showQuoteFeedback(
+      'removeEmpty',
+      'input',
       removedRows
         ? `Removed ${removedRows} empty row${removedRows === 1 ? '' : 's'}.`
-        : 'No empty rows found.',
+        : 'No empty rows found',
+      'cleanup',
     );
   }
 
   protected sortRows(): void {
-    this.inputText.update((value) =>
-      value
-        .split(/\r?\n/)
-        .sort((first, second) => first.trim().localeCompare(second.trim()))
-        .join('\n'),
+    const inputText = this.inputText();
+    const sortedText = inputText
+      .split(/\r?\n/)
+      .sort((first, second) => first.trim().localeCompare(second.trim()))
+      .join('\n');
+
+    this.inputText.set(sortedText);
+    this.showQuoteFeedback(
+      'sort',
+      'input',
+      inputText === sortedText ? 'Rows already sorted' : 'Sorted rows',
+      'cleanup',
     );
+  }
+
+  protected getQuoteActionLabel(action: QuoteAction, defaultLabel: string): string {
+    return this.activeQuoteAction() === action ? this.getQuoteActionPastTense(action) : defaultLabel;
+  }
+
+  protected isQuoteActionActive(action: QuoteAction): boolean {
+    return this.activeQuoteAction() === action;
+  }
+
+  protected getQuoteFeedbackMessage(target: QuoteFeedbackTarget): string {
+    const feedback = this.quoteFeedback();
+
+    return feedback?.target === target ? feedback.message : '';
+  }
+
+  protected getCodeFieldClass(target: QuoteFeedbackTarget): string {
+    const feedback = this.quoteFeedback();
+
+    if (feedback?.target !== target) {
+      return 'code-field';
+    }
+
+    return `code-field code-field--pulse-${feedback.tone}`;
+  }
+
+  protected getFeedbackBadgeClass(target: QuoteFeedbackTarget): string {
+    const feedback = this.quoteFeedback();
+
+    if (feedback?.target !== target) {
+      return 'action-badge';
+    }
+
+    return `action-badge action-badge--visible action-badge--${feedback.tone}`;
   }
 
   protected async copyResult(): Promise<void> {
     await navigator.clipboard?.writeText(this.resultText());
     this.copied.set(true);
+    this.showQuoteFeedback('copy', 'result', 'Copied result', 'success');
 
     if (this.copiedTimer) {
       clearTimeout(this.copiedTimer);
     }
 
     this.copiedTimer = setTimeout(() => this.copied.set(false), 1400);
+  }
+
+  private showQuoteFeedback(
+    action: QuoteAction,
+    target: QuoteFeedbackTarget,
+    message: string,
+    tone: QuoteFeedbackTone,
+  ): void {
+    this.quoteFeedbackId += 1;
+    const feedbackId = this.quoteFeedbackId;
+
+    this.activeQuoteAction.set(action);
+    this.quoteFeedback.set(undefined);
+
+    setTimeout(() => {
+      if (feedbackId !== this.quoteFeedbackId) {
+        return;
+      }
+
+      this.quoteFeedback.set({
+        id: feedbackId,
+        target,
+        message,
+        tone,
+      });
+    });
+
+    if (this.quoteActionTimer) {
+      clearTimeout(this.quoteActionTimer);
+    }
+    if (this.quoteFeedbackTimer) {
+      clearTimeout(this.quoteFeedbackTimer);
+    }
+
+    this.quoteActionTimer = setTimeout(() => this.activeQuoteAction.set(undefined), 760);
+    this.quoteFeedbackTimer = setTimeout(() => this.quoteFeedback.set(undefined), 1800);
+  }
+
+  private getQuoteActionPastTense(action: QuoteAction): string {
+    switch (action) {
+      case 'paste':
+        return 'Pasted';
+      case 'add':
+        return 'Added';
+      case 'clear':
+        return 'Cleared';
+      case 'removeQuotes':
+        return 'Cleaned';
+      case 'trim':
+        return 'Trimmed';
+      case 'deduplicate':
+        return 'Deduped';
+      case 'removeEmpty':
+        return 'Removed';
+      case 'sort':
+        return 'Sorted';
+      case 'copy':
+        return 'Copied';
+    }
+  }
+
+  private getRowLabel(value: string): string {
+    const rowCount = value ? value.split(/\r?\n/).length : 0;
+
+    return `${rowCount} row${rowCount === 1 ? '' : 's'}`;
   }
 
   protected generatePassword(): void {
