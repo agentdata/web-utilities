@@ -16,7 +16,7 @@
 
 <mat-tab-nav-panel #tabPanel></mat-tab-nav-panel>
 
-<main class="page-shell">
+<main class="page-shell" [class.page-shell--quotes]="activeUtility() === 'quotes'">
   @if (activeUtility() === 'quotes') {
     <section class="hero">
       <div>

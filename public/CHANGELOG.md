@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.6.1 - 2026-07-10
+
+Wider quote tool layout.
+
+- Increased the max page width on the quote tool view.
+
 ## 1.6.0 - 2026-07-10
 
 Versioned changelog and quote feedback.

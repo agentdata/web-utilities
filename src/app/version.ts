@@ -7,9 +7,17 @@ export type ChangelogEntry = {
   commits: string[];
 };
 
-export const APP_VERSION = '1.6.0';
+export const APP_VERSION = '1.6.1';
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.6.1',
+    date: '2026-07-10',
+    title: 'Wider quote tool layout',
+    summary: 'Widened the page shell for the quote tool to give the editor more room.',
+    changes: ['Increased the max page width on the quote tool view.'],
+    commits: [],
+  },
   {
     version: '1.6.0',
     date: '2026-07-10',

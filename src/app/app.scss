@@ -52,9 +52,15 @@
 }
 
 .page-shell {
-  width: min(1180px, calc(100% - 32px));
+  --page-shell-max-width: 1180px;
+
+  width: min(var(--page-shell-max-width), calc(100% - 32px));
   margin: 0 auto;
   padding: 14px 0 16px;
+}
+
+.page-shell--quotes {
+  --page-shell-max-width: 1520px;
 }
 
 .hero {
