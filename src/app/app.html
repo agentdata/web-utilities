@@ -8,11 +8,7 @@
     <a mat-tab-link routerLink="/quotes-tool" [active]="activeUtility() === 'quotes'">
       Add Quotes
     </a>
-    <a
-      mat-tab-link
-      routerLink="/password-tool"
-      [active]="activeUtility() === 'password'"
-    >
+    <a mat-tab-link routerLink="/password-tool" [active]="activeUtility() === 'password'">
       Password Generator
     </a>
   </nav>
@@ -57,11 +53,7 @@
         <mat-card appearance="outlined" class="editor-card">
           <mat-card-header>
             <mat-card-title>Input</mat-card-title>
-            <span
-              role="status"
-              aria-live="polite"
-              [class]="getFeedbackBadgeClass('input')"
-            >
+            <span role="status" aria-live="polite" [class]="getFeedbackBadgeClass('input')">
               {{ getQuoteFeedbackMessage('input') }}
             </span>
           </mat-card-header>
@@ -184,11 +176,7 @@
         <mat-card appearance="outlined" class="editor-card">
           <mat-card-header>
             <mat-card-title>Result</mat-card-title>
-            <span
-              role="status"
-              aria-live="polite"
-              [class]="getFeedbackBadgeClass('result')"
-            >
+            <span role="status" aria-live="polite" [class]="getFeedbackBadgeClass('result')">
               {{ getQuoteFeedbackMessage('result') }}
             </span>
           </mat-card-header>
@@ -825,6 +813,15 @@
     </div>
 
     <div class="footer-meta" aria-label="Site details">
+      <button
+        mat-button
+        type="button"
+        class="version-button"
+        [matMenuTriggerFor]="changelogMenu"
+        aria-label="View changelog history"
+      >
+        v{{ appVersion }}
+      </button>
       <span>No signup</span>
       <span>Runs in your browser</span>
       <span>Built by agentdata</span>
@@ -832,3 +829,29 @@
     </div>
   </div>
 </footer>
+
+<mat-menu #changelogMenu="matMenu" class="changelog-menu" xPosition="before">
+  <div class="changelog-popover" (click)="$event.stopPropagation()">
+    <div class="changelog-popover__header">
+      <span>Changelog</span>
+      <strong>v{{ appVersion }}</strong>
+    </div>
+
+    <div class="changelog-list">
+      @for (entry of changelog; track entry.version) {
+        <article class="changelog-entry">
+          <div>
+            <span class="changelog-version">v{{ entry.version }}</span>
+            <time [attr.datetime]="entry.date">{{ entry.date }}</time>
+          </div>
+          <h3>{{ entry.title }}</h3>
+          <p>{{ entry.summary }}</p>
+        </article>
+      }
+    </div>
+
+    <a mat-stroked-button href="CHANGELOG.md" target="_blank" rel="noreferrer">
+      Open full changelog
+    </a>
+  </div>
+</mat-menu>

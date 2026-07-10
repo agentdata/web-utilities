@@ -15,6 +15,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTabsModule } from '@angular/material/tabs';
@@ -22,6 +23,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { NavigationEnd, Router, RouterLink } from '@angular/router';
 import { filter } from 'rxjs';
+import { APP_VERSION, CHANGELOG } from './version';
 
 type QuoteType = 'double' | 'single';
 type UtilityTab = 'quotes' | 'password';
@@ -1259,6 +1261,7 @@ type InputInsights = {
     MatCheckboxModule,
     MatFormFieldModule,
     MatInputModule,
+    MatMenuModule,
     MatRadioModule,
     MatSnackBarModule,
     MatTabsModule,
@@ -1311,6 +1314,8 @@ export class App {
   protected readonly isNavHidden = signal(false);
   protected readonly inputScrollTop = signal(0);
   protected readonly resultScrollTop = signal(0);
+  protected readonly appVersion = APP_VERSION;
+  protected readonly changelog = CHANGELOG;
 
   private lastScrollY = 0;
   private quoteFeedbackId = 0;
@@ -1688,7 +1693,9 @@ export class App {
   }
 
   protected getQuoteActionLabel(action: QuoteAction, defaultLabel: string): string {
-    return this.activeQuoteAction() === action ? this.getQuoteActionPastTense(action) : defaultLabel;
+    return this.activeQuoteAction() === action
+      ? this.getQuoteActionPastTense(action)
+      : defaultLabel;
   }
 
   protected isQuoteActionActive(action: QuoteAction): boolean {
