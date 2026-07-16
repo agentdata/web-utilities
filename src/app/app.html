@@ -126,7 +126,17 @@
                   mat-stroked-button
                   type="button"
                   class="action-button"
+                  style="width: 190px"
                   [class.action-button--active]="isQuoteActionActive('removeQuotes')"
+                  [class.action-button--pending-fix]="isQuoteActionPendingFix('removeQuotes')"
+                  [style.background-color]="
+                    isQuoteActionPendingFix('removeQuotes') ? '#fff1b8' : null
+                  "
+                  [attr.aria-label]="
+                    isQuoteActionPendingFix('removeQuotes')
+                      ? 'Fix quote or comma warning: Remove quotes/commas'
+                      : 'Remove quotes/commas'
+                  "
                   matTooltip="Removes double quotes, single quotes, backticks, and commas from the input."
                   (click)="removeQuotesAndCommas()"
                 >
@@ -136,7 +146,15 @@
                   mat-stroked-button
                   type="button"
                   class="action-button"
+                  style="width: 190px"
                   [class.action-button--active]="isQuoteActionActive('trim')"
+                  [class.action-button--pending-fix]="isQuoteActionPendingFix('trim')"
+                  [style.background-color]="isQuoteActionPendingFix('trim') ? '#fff1b8' : null"
+                  [attr.aria-label]="
+                    isQuoteActionPendingFix('trim')
+                      ? 'Fix whitespace warning: Clear edge whitespace'
+                      : 'Clear edge whitespace'
+                  "
                   (click)="trimRows()"
                 >
                   {{ getQuoteActionLabel('trim', 'Clear edge whitespace') }}
@@ -145,7 +163,17 @@
                   mat-stroked-button
                   type="button"
                   class="action-button"
+                  style="width: 190px"
                   [class.action-button--active]="isQuoteActionActive('deduplicate')"
+                  [class.action-button--pending-fix]="isQuoteActionPendingFix('deduplicate')"
+                  [style.background-color]="
+                    isQuoteActionPendingFix('deduplicate') ? '#fff1b8' : null
+                  "
+                  [attr.aria-label]="
+                    isQuoteActionPendingFix('deduplicate')
+                      ? 'Fix duplicate rows warning: Deduplicate rows'
+                      : 'Deduplicate rows'
+                  "
                   (click)="deduplicateRows()"
                 >
                   {{ getQuoteActionLabel('deduplicate', 'Deduplicate rows') }}
@@ -154,7 +182,17 @@
                   mat-stroked-button
                   type="button"
                   class="action-button"
+                  style="width: 190px"
                   [class.action-button--active]="isQuoteActionActive('removeEmpty')"
+                  [class.action-button--pending-fix]="isQuoteActionPendingFix('removeEmpty')"
+                  [style.background-color]="
+                    isQuoteActionPendingFix('removeEmpty') ? '#fff1b8' : null
+                  "
+                  [attr.aria-label]="
+                    isQuoteActionPendingFix('removeEmpty')
+                      ? 'Fix empty rows warning: Remove empty rows'
+                      : 'Remove empty rows'
+                  "
                   (click)="removeEmptyRows()"
                 >
                   {{ getQuoteActionLabel('removeEmpty', 'Remove empty rows') }}
@@ -163,6 +201,7 @@
                   mat-stroked-button
                   type="button"
                   class="action-button"
+                  style="width: 190px"
                   [class.action-button--active]="isQuoteActionActive('sort')"
                   (click)="sortRows()"
                 >

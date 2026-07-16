@@ -53,6 +53,77 @@ describe('App', () => {
     expect(insights.whitespaceOverflow).toBe(300);
   });
 
+  it('highlights the empty-row fix button until fixed', async () => {
+    const fixture = TestBed.createComponent(App);
+    const app = fixture.componentInstance as any;
+
+    fixture.detectChanges();
+    app.setInputText({ target: { value: 'alpha\n\nbravo' } } as unknown as Event);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    await Promise.resolve();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    const fixButton = compiled.querySelector(
+      'button[aria-label="Fix empty rows warning: Remove empty rows"]',
+    ) as HTMLButtonElement | null;
+
+    expect(fixButton).toBeTruthy();
+    expect(fixButton?.classList).toContain('action-button--pending-fix');
+
+    app.removeEmptyRows();
+    fixture.detectChanges();
+
+    expect(app.inputText()).toBe('alpha\nbravo');
+    expect(fixButton?.classList).not.toContain('action-button--pending-fix');
+  });
+
+  it('highlights quote cleanup while removable characters exist', () => {
+    const fixture = TestBed.createComponent(App);
+    const app = fixture.componentInstance as any;
+
+    fixture.detectChanges();
+    app.setInputText({ target: { value: '"alpha",\n`bravo`' } } as unknown as Event);
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    const fixButton = compiled.querySelector(
+      'button[aria-label="Fix quote or comma warning: Remove quotes/commas"]',
+    ) as HTMLButtonElement | null;
+
+    expect(fixButton).toBeTruthy();
+    expect(fixButton?.classList).toContain('action-button--pending-fix');
+
+    app.removeQuotesAndCommas();
+    fixture.detectChanges();
+
+    expect(app.inputText()).toBe('alpha\nbravo');
+    expect(fixButton?.classList).not.toContain('action-button--pending-fix');
+  });
+
+  it('highlights duplicate cleanup while duplicate rows exist', () => {
+    const fixture = TestBed.createComponent(App);
+    const app = fixture.componentInstance as any;
+
+    fixture.detectChanges();
+    app.setInputText({ target: { value: 'alpha\nbravo\n alpha ' } } as unknown as Event);
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    const fixButton = compiled.querySelector(
+      'button[aria-label="Fix duplicate rows warning: Deduplicate rows"]',
+    ) as HTMLButtonElement | null;
+
+    expect(fixButton).toBeTruthy();
+    expect(fixButton?.classList).toContain('action-button--pending-fix');
+
+    app.deduplicateRows();
+    fixture.detectChanges();
+
+    expect(app.inputText()).toBe('alpha\nbravo');
+    expect(fixButton?.classList).not.toContain('action-button--pending-fix');
+  });
+
   it('remembers quote options in a cookie', () => {
     const fixture = TestBed.createComponent(App);
     const app = fixture.componentInstance as any;

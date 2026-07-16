@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.6.2 - 2026-07-16
+
+Quote validation fixes.
+
+- Highlighted cleanup buttons when their matching quote input issue is present.
+- Kept focus in the editor after typing or pasting validation issues.
+- Fixed cleanup button widths so action label changes do not shift the toolbar.
+
 ## 1.6.1 - 2026-07-10
 
 Wider quote tool layout.

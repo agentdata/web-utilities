@@ -7,9 +7,22 @@ export type ChangelogEntry = {
   commits: string[];
 };
 
-export const APP_VERSION = '1.6.1';
+export const APP_VERSION = '1.6.2';
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.6.2',
+    date: '2026-07-16',
+    title: 'Quote validation fixes',
+    summary:
+      'Improved quote cleanup validation so fix buttons are easier to identify without stealing focus.',
+    changes: [
+      'Highlighted cleanup buttons when their matching quote input issue is present.',
+      'Kept focus in the editor after typing or pasting validation issues.',
+      'Fixed cleanup button widths so action label changes do not shift the toolbar.',
+    ],
+    commits: [],
+  },
   {
     version: '1.6.1',
     date: '2026-07-10',

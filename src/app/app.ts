@@ -39,6 +39,7 @@ type QuoteAction =
   | 'copy';
 type QuoteFeedbackTarget = 'input' | 'result';
 type QuoteFeedbackTone = 'primary' | 'cleanup' | 'success';
+type QuoteValidationFixAction = 'removeQuotes' | 'trim' | 'deduplicate' | 'removeEmpty';
 type QuoteFeedback = {
   id: number;
   target: QuoteFeedbackTarget;
@@ -1351,6 +1352,25 @@ export class App {
   protected readonly inputStats = computed(() => this.getStats(this.inputText()));
   protected readonly resultStats = computed(() => this.getStats(this.resultText()));
   protected readonly inputInsights = computed(() => this.getInputInsights());
+  protected readonly quoteValidationFixAction = computed<QuoteValidationFixAction | undefined>(
+    () => {
+      const insights = this.inputInsights();
+
+      if (insights.blankLineRows.length) {
+        return 'removeEmpty';
+      }
+      if (insights.whitespaceRows.length) {
+        return 'trim';
+      }
+      if (this.inputHasRemovableQuoteCharacters()) {
+        return 'removeQuotes';
+      }
+      if (insights.duplicateRows > 0) {
+        return 'deduplicate';
+      }
+      return undefined;
+    },
+  );
   protected readonly selectedPasswordCategories = computed(() => {
     const categories: PasswordCategory[] = [];
 
@@ -1700,6 +1720,21 @@ export class App {
 
   protected isQuoteActionActive(action: QuoteAction): boolean {
     return this.activeQuoteAction() === action;
+  }
+
+  protected isQuoteActionPendingFix(action: QuoteAction): boolean {
+    const insights = this.inputInsights();
+
+    return (
+      (action === 'removeQuotes' && this.inputHasRemovableQuoteCharacters()) ||
+      (action === 'trim' && insights.whitespaceRows.length > 0) ||
+      (action === 'deduplicate' && insights.duplicateRows > 0) ||
+      (action === 'removeEmpty' && insights.blankLineRows.length > 0)
+    );
+  }
+
+  private inputHasRemovableQuoteCharacters(): boolean {
+    return /[,"'`]/.test(this.inputText());
   }
 
   protected getQuoteFeedbackMessage(target: QuoteFeedbackTarget): string {
