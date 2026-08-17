@@ -36,6 +36,8 @@ type QuoteAction =
   | 'deduplicate'
   | 'removeEmpty'
   | 'sort'
+  | 'uppercase'
+  | 'lowercase'
   | 'copy';
 type QuoteFeedbackTarget = 'input' | 'result';
 type QuoteFeedbackTone = 'primary' | 'cleanup' | 'success';
@@ -1712,6 +1714,32 @@ export class App {
     );
   }
 
+  protected uppercaseInput(): void {
+    const inputText = this.inputText();
+    const uppercasedText = inputText.toUpperCase();
+
+    this.inputText.set(uppercasedText);
+    this.showQuoteFeedback(
+      'uppercase',
+      'input',
+      inputText === uppercasedText ? 'Input already uppercase' : 'Converted input to uppercase',
+      'cleanup',
+    );
+  }
+
+  protected lowercaseInput(): void {
+    const inputText = this.inputText();
+    const lowercasedText = inputText.toLowerCase();
+
+    this.inputText.set(lowercasedText);
+    this.showQuoteFeedback(
+      'lowercase',
+      'input',
+      inputText === lowercasedText ? 'Input already lowercase' : 'Converted input to lowercase',
+      'cleanup',
+    );
+  }
+
   protected getQuoteActionLabel(action: QuoteAction, defaultLabel: string): string {
     return this.activeQuoteAction() === action
       ? this.getQuoteActionPastTense(action)
@@ -1829,6 +1857,10 @@ export class App {
         return 'Removed';
       case 'sort':
         return 'Sorted';
+      case 'uppercase':
+        return 'Uppercased';
+      case 'lowercase':
+        return 'Lowercased';
       case 'copy':
         return 'Copied';
     }

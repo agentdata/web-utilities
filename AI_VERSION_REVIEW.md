@@ -3,7 +3,7 @@
 ```yaml
 schema: web-utilities.version-review.v1
 project: web-utilities
-current_version: 1.6.0
+current_version: 1.7.0
 version_source: src/app/version.ts
 user_changelog: public/CHANGELOG.md
 package_version: package.json
@@ -13,6 +13,21 @@ versioning_policy:
   minor: New tools, new user-facing features, or meaningful workflow improvements.
   patch: Bug fixes, copy/style polish, tests, or deployment-only updates.
 release_history:
+  - version: 1.7.0
+    date: 2026-08-17
+    title: Input case conversion
+    summary: Added fast uppercase and lowercase cleanup actions for normalizing case-sensitive identifiers.
+    commits: []
+  - version: 1.6.2
+    date: 2026-07-16
+    title: Quote validation fixes
+    summary: Improved quote cleanup validation so fix buttons are easier to identify without stealing focus.
+    commits: []
+  - version: 1.6.1
+    date: 2026-07-10
+    title: Wider quote tool layout
+    summary: Widened the page shell for the quote tool to give the editor more room.
+    commits: []
   - version: 1.6.0
     date: 2026-07-10
     title: Versioned changelog and quote feedback

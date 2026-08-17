@@ -124,6 +124,32 @@ describe('App', () => {
     expect(fixButton?.classList).not.toContain('action-button--pending-fix');
   });
 
+  it('converts the full input between uppercase and lowercase without changing rows', () => {
+    const fixture = TestBed.createComponent(App);
+    const app = fixture.componentInstance as any;
+
+    app.inputText.set('Partner-AbC123\nSecond-Value');
+    app.uppercaseInput();
+
+    expect(app.inputText()).toBe('PARTNER-ABC123\nSECOND-VALUE');
+
+    app.lowercaseInput();
+
+    expect(app.inputText()).toBe('partner-abc123\nsecond-value');
+  });
+
+  it('case-converts large inputs without changing the row count', () => {
+    const fixture = TestBed.createComponent(App);
+    const app = fixture.componentInstance as any;
+    const input = Array.from({ length: 100_000 }, (_, index) => `Partner-${index}-aBc`).join('\n');
+
+    app.inputText.set(input);
+    app.uppercaseInput();
+
+    expect(app.inputStats().rows).toBe(100_000);
+    expect(app.inputText()).toBe(input.toUpperCase());
+  });
+
   it('remembers quote options in a cookie', () => {
     const fixture = TestBed.createComponent(App);
     const app = fixture.componentInstance as any;

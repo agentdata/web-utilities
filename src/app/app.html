@@ -207,6 +207,28 @@
                 >
                   {{ getQuoteActionLabel('sort', 'Sort rows') }}
                 </button>
+                <button
+                  mat-stroked-button
+                  type="button"
+                  class="action-button"
+                  style="width: 190px"
+                  [class.action-button--active]="isQuoteActionActive('uppercase')"
+                  matTooltip="Converts all letters in the input to uppercase."
+                  (click)="uppercaseInput()"
+                >
+                  {{ getQuoteActionLabel('uppercase', 'Uppercase') }}
+                </button>
+                <button
+                  mat-stroked-button
+                  type="button"
+                  class="action-button"
+                  style="width: 190px"
+                  [class.action-button--active]="isQuoteActionActive('lowercase')"
+                  matTooltip="Converts all letters in the input to lowercase."
+                  (click)="lowercaseInput()"
+                >
+                  {{ getQuoteActionLabel('lowercase', 'Lowercase') }}
+                </button>
               </div>
             </div>
           </mat-card-content>

@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.7.0 - 2026-08-17
+
+Input case conversion.
+
+- Added Uppercase and Lowercase cleanup buttons to the quote tool.
+- Preserved row structure while converting the complete input in one linear operation.
+- Added coverage for case conversion with inputs containing 100,000 rows.
+
 ## 1.6.2 - 2026-07-16
 
 Quote validation fixes.
