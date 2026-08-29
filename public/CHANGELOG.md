@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.8.1 - 2026-08-28
+
+Large text diff usability.
+
+- Added word wrapping to the diff inputs and comparison output.
+- Kept logical row numbers aligned with newline-delimited rows while long rows wrap.
+- Added line, word, and character counts for both inputs.
+- Clarified modified-line statistics and added character-level addition and removal counts.
+- Added a visible fallback notice when large comparisons use positional line matching.
+
 ## 1.8.0 - 2026-08-28
 
 Local text comparison.

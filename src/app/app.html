@@ -491,15 +491,15 @@
       <div class="diff-summary" aria-live="polite">
         <div class="diff-stat diff-stat--changed">
           <strong>{{ diffStats().changed }}</strong
-          ><span>Changed</span>
+          ><span>Modified lines</span>
         </div>
         <div class="diff-stat diff-stat--added">
           <strong>{{ diffStats().added }}</strong
-          ><span>Added</span>
+          ><span>Added lines · {{ diffStats().addedCharacters }} chars</span>
         </div>
         <div class="diff-stat diff-stat--removed">
           <strong>{{ diffStats().removed }}</strong
-          ><span>Removed</span>
+          ><span>Removed lines · {{ diffStats().removedCharacters }} chars</span>
         </div>
         <div class="diff-stat">
           <strong>{{ diffStats().unchanged }}</strong

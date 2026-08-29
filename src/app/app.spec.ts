@@ -37,7 +37,14 @@ describe('App', () => {
     app.diffLeftText.set('alpha\nbravo\ncharlie');
     app.diffRightText.set('alpha\nBRAVO\ncharlie\ndelta');
 
-    expect(app.diffStats()).toEqual({ unchanged: 2, changed: 1, added: 1, removed: 0 });
+    expect(app.diffStats()).toEqual({
+      unchanged: 2,
+      changed: 1,
+      added: 1,
+      removed: 0,
+      addedCharacters: 10,
+      removedCharacters: 5,
+    });
     expect(app.diffRows().find((row: any) => row.kind === 'changed').leftLine).toBe(2);
   });
 
@@ -65,6 +72,20 @@ describe('App', () => {
     expect(app.diffStats().changed).toBe(1);
     expect(app.diffRows()[0].left.some((fragment: any) => fragment.changed)).toBe(true);
     expect(app.diffLeftLines()).toHaveLength(1);
+  });
+
+  it('reports character additions and removals inside a modified line', () => {
+    const fixture = TestBed.createComponent(App);
+    const app = fixture.componentInstance as any;
+
+    app.diffLeftText.set('prefix old suffix');
+    app.diffRightText.set('prefix newer suffix');
+
+    expect(app.diffStats().changed).toBe(1);
+    expect(app.diffStats().added).toBe(0);
+    expect(app.diffStats().removed).toBe(0);
+    expect(app.diffStats().addedCharacters).toBe(5);
+    expect(app.diffStats().removedCharacters).toBe(3);
   });
 
   it('renders one input row number per newline-delimited row', () => {

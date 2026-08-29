@@ -1478,6 +1478,28 @@ export class App {
       changed: rows.filter((row) => row.kind === 'changed').length,
       added: rows.filter((row) => row.kind === 'added').length,
       removed: rows.filter((row) => row.kind === 'removed').length,
+      addedCharacters: rows.reduce(
+        (total, row) =>
+          total +
+          (row.kind === 'added' || row.kind === 'changed'
+            ? row.right.reduce(
+                (rowTotal, fragment) => rowTotal + (fragment.changed ? fragment.text.length : 0),
+                0,
+              )
+            : 0),
+        0,
+      ),
+      removedCharacters: rows.reduce(
+        (total, row) =>
+          total +
+          (row.kind === 'removed' || row.kind === 'changed'
+            ? row.left.reduce(
+                (rowTotal, fragment) => rowTotal + (fragment.changed ? fragment.text.length : 0),
+                0,
+              )
+            : 0),
+        0,
+      ),
     };
   });
   protected readonly diffHasContent = computed(

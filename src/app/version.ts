@@ -7,9 +7,24 @@ export type ChangelogEntry = {
   commits: string[];
 };
 
-export const APP_VERSION = '1.8.0';
+export const APP_VERSION = '1.8.1';
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.8.1',
+    date: '2026-08-28',
+    title: 'Large text diff usability',
+    summary:
+      'Improved long-text comparison with correct wrapping, logical row numbers, and clearer change statistics.',
+    changes: [
+      'Added word wrapping to the diff inputs and comparison output.',
+      'Kept logical row numbers aligned with newline-delimited rows while long rows wrap.',
+      'Added line, word, and character counts for both inputs.',
+      'Clarified modified-line statistics and added character-level addition and removal counts.',
+      'Added a visible fallback notice when large comparisons use positional line matching.',
+    ],
+    commits: [],
+  },
   {
     version: '1.8.0',
     date: '2026-08-28',
