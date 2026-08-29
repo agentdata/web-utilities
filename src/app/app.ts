@@ -26,7 +26,7 @@ import { filter } from 'rxjs';
 import { APP_VERSION, CHANGELOG } from './version';
 
 type QuoteType = 'double' | 'single';
-type UtilityTab = 'quotes' | 'password';
+type UtilityTab = 'quotes' | 'diff' | 'password';
 type QuoteAction =
   | 'paste'
   | 'add'
@@ -1245,6 +1245,15 @@ type TextStats = {
   words: number;
 };
 
+type DiffFragment = { text: string; changed: boolean };
+type DiffRow = {
+  kind: 'unchanged' | 'added' | 'removed' | 'changed';
+  leftLine?: number;
+  rightLine?: number;
+  left: DiffFragment[];
+  right: DiffFragment[];
+};
+
 type InputInsights = {
   blankLines: number;
   blankLineRows: number[];
@@ -1280,9 +1289,18 @@ export class App {
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
   private readonly inputTextarea = viewChild<ElementRef<HTMLTextAreaElement>>('inputTextarea');
+  private readonly diffLeftTextarea =
+    viewChild<ElementRef<HTMLTextAreaElement>>('diffLeftTextarea');
+  private readonly diffRightTextarea =
+    viewChild<ElementRef<HTMLTextAreaElement>>('diffRightTextarea');
 
   protected readonly inputText = signal('');
   protected readonly activeUtility = signal<UtilityTab>('quotes');
+  protected readonly diffLeftText = signal('');
+  protected readonly diffRightText = signal('');
+  protected readonly ignoreDiffWhitespace = signal(false);
+  protected readonly diffLeftScrollTop = signal(0);
+  protected readonly diffRightScrollTop = signal(0);
   protected readonly quoteType = signal<QuoteType>('single');
   protected readonly addCommas = signal(true);
   protected readonly omitLastComma = signal(false);
@@ -1452,6 +1470,29 @@ export class App {
   protected readonly resultGutterOffset = computed(() =>
     this.getGutterOffset(this.resultLineNumbers()[0] ?? 1, this.resultScrollTop()),
   );
+  protected readonly diffRows = computed(() => this.buildDiffRows());
+  protected readonly diffStats = computed(() => {
+    const rows = this.diffRows();
+    return {
+      unchanged: rows.filter((row) => row.kind === 'unchanged').length,
+      changed: rows.filter((row) => row.kind === 'changed').length,
+      added: rows.filter((row) => row.kind === 'added').length,
+      removed: rows.filter((row) => row.kind === 'removed').length,
+    };
+  });
+  protected readonly diffHasContent = computed(
+    () => this.diffLeftText().length > 0 || this.diffRightText().length > 0,
+  );
+  protected readonly diffIsIdentical = computed(
+    () => this.diffHasContent() && this.diffRows().every((row) => row.kind === 'unchanged'),
+  );
+  protected readonly diffLeftStats = computed(() => this.getStats(this.diffLeftText()));
+  protected readonly diffRightStats = computed(() => this.getStats(this.diffRightText()));
+  protected readonly diffLeftLines = computed(() => this.diffLeftText().split(/\r?\n/));
+  protected readonly diffRightLines = computed(() => this.diffRightText().split(/\r?\n/));
+  protected readonly diffUsesLargeTextMode = computed(
+    () => this.diffLeftStats().rows * this.diffRightStats().rows > 2_000_000,
+  );
 
   constructor() {
     this.setActiveUtilityFromUrl(this.router.url);
@@ -1474,7 +1515,170 @@ export class App {
   }
 
   private setActiveUtilityFromUrl(url: string): void {
-    this.activeUtility.set(url.split('?')[0].includes('/password-tool') ? 'password' : 'quotes');
+    const path = url.split('?')[0];
+    this.activeUtility.set(
+      path.includes('/password-tool')
+        ? 'password'
+        : path.includes('/diff-tool')
+          ? 'diff'
+          : 'quotes',
+    );
+  }
+
+  protected setDiffText(side: 'left' | 'right', event: Event): void {
+    const value = (event.target as HTMLTextAreaElement).value;
+    (side === 'left' ? this.diffLeftText : this.diffRightText).set(value);
+  }
+
+  protected setDiffScroll(side: 'left' | 'right', event: Event): void {
+    const scrollTop = (event.target as HTMLTextAreaElement).scrollTop;
+    (side === 'left' ? this.diffLeftScrollTop : this.diffRightScrollTop).set(scrollTop);
+  }
+
+  protected async pasteDiff(side: 'left' | 'right'): Promise<void> {
+    try {
+      if (!navigator.clipboard?.readText) throw new Error('Clipboard API unavailable.');
+      const value = (await navigator.clipboard.readText()) ?? '';
+      (side === 'left' ? this.diffLeftText : this.diffRightText).set(value);
+    } catch {
+      (side === 'left' ? this.diffLeftTextarea : this.diffRightTextarea)()?.nativeElement.focus();
+      this.showMessage(
+        'Browser blocked clipboard access. The editor is focused; press Cmd+V to paste.',
+      );
+    }
+  }
+
+  protected clearDiff(side?: 'left' | 'right'): void {
+    if (!side || side === 'left') this.diffLeftText.set('');
+    if (!side || side === 'right') this.diffRightText.set('');
+  }
+
+  protected swapDiff(): void {
+    const left = this.diffLeftText();
+    this.diffLeftText.set(this.diffRightText());
+    this.diffRightText.set(left);
+  }
+
+  private buildDiffRows(): DiffRow[] {
+    const left = this.diffLeftText() ? this.diffLeftText().split(/\r?\n/) : [];
+    const right = this.diffRightText() ? this.diffRightText().split(/\r?\n/) : [];
+    const normalize = (value: string) =>
+      this.ignoreDiffWhitespace() ? value.replace(/\s+/g, ' ').trim() : value;
+    const leftValues = left.map(normalize);
+    const rightValues = right.map(normalize);
+
+    // Keep comparison responsive for unusually large pastes by falling back to positional matching.
+    if (left.length * right.length > 2_000_000) {
+      const rows: DiffRow[] = [];
+      for (let index = 0; index < Math.max(left.length, right.length); index += 1) {
+        rows.push(
+          this.makeDiffRow(
+            left[index],
+            right[index],
+            left[index] === undefined ? undefined : index + 1,
+            right[index] === undefined ? undefined : index + 1,
+            normalize,
+          ),
+        );
+      }
+      return rows;
+    }
+
+    const table = Array.from({ length: left.length + 1 }, () => new Uint32Array(right.length + 1));
+    for (let i = left.length - 1; i >= 0; i -= 1) {
+      for (let j = right.length - 1; j >= 0; j -= 1) {
+        table[i][j] =
+          leftValues[i] === rightValues[j]
+            ? table[i + 1][j + 1] + 1
+            : Math.max(table[i + 1][j], table[i][j + 1]);
+      }
+    }
+
+    const operations: {
+      side: 'both' | 'left' | 'right';
+      value: string;
+      line: number;
+      rightLine?: number;
+    }[] = [];
+    let i = 0;
+    let j = 0;
+    while (i < left.length || j < right.length) {
+      if (i < left.length && j < right.length && leftValues[i] === rightValues[j]) {
+        operations.push({ side: 'both', value: left[i], line: i + 1, rightLine: j + 1 });
+        i += 1;
+        j += 1;
+      } else if (j < right.length && (i === left.length || table[i][j + 1] >= table[i + 1][j])) {
+        operations.push({ side: 'right', value: right[j], line: j + 1 });
+        j += 1;
+      } else {
+        operations.push({ side: 'left', value: left[i], line: i + 1 });
+        i += 1;
+      }
+    }
+
+    const rows: DiffRow[] = [];
+    for (let op = 0; op < operations.length; ) {
+      if (operations[op].side === 'both') {
+        const item = operations[op++];
+        rows.push(this.makeDiffRow(item.value, item.value, item.line, item.rightLine, normalize));
+        continue;
+      }
+      const block = [];
+      while (op < operations.length && operations[op].side !== 'both') block.push(operations[op++]);
+      const removed = block.filter((item) => item.side === 'left');
+      const added = block.filter((item) => item.side === 'right');
+      for (let k = 0; k < Math.max(removed.length, added.length); k += 1) {
+        rows.push(
+          this.makeDiffRow(
+            removed[k]?.value,
+            added[k]?.value,
+            removed[k]?.line,
+            added[k]?.line,
+            normalize,
+          ),
+        );
+      }
+    }
+    return rows;
+  }
+
+  private makeDiffRow(
+    left: string | undefined,
+    right: string | undefined,
+    leftLine: number | undefined,
+    rightLine: number | undefined,
+    normalize: (value: string) => string,
+  ): DiffRow {
+    if (left === undefined)
+      return { kind: 'added', rightLine, left: [], right: [{ text: right ?? '', changed: true }] };
+    if (right === undefined)
+      return { kind: 'removed', leftLine, left: [{ text: left, changed: true }], right: [] };
+    if (normalize(left) === normalize(right)) {
+      return {
+        kind: 'unchanged',
+        leftLine,
+        rightLine,
+        left: [{ text: left, changed: false }],
+        right: [{ text: right, changed: false }],
+      };
+    }
+    let prefix = 0;
+    while (prefix < left.length && prefix < right.length && left[prefix] === right[prefix])
+      prefix += 1;
+    let suffix = 0;
+    while (
+      suffix < left.length - prefix &&
+      suffix < right.length - prefix &&
+      left[left.length - 1 - suffix] === right[right.length - 1 - suffix]
+    )
+      suffix += 1;
+    const fragments = (value: string): DiffFragment[] =>
+      [
+        { text: value.slice(0, prefix), changed: false },
+        { text: value.slice(prefix, value.length - suffix || value.length), changed: true },
+        { text: suffix ? value.slice(-suffix) : '', changed: false },
+      ].filter((fragment) => fragment.text.length > 0);
+    return { kind: 'changed', leftLine, rightLine, left: fragments(left), right: fragments(right) };
   }
 
   @HostListener('window:scroll')

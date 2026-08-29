@@ -7,9 +7,22 @@ export type ChangelogEntry = {
   commits: string[];
 };
 
-export const APP_VERSION = '1.7.0';
+export const APP_VERSION = '1.8.0';
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.8.0',
+    date: '2026-08-28',
+    title: 'Local text comparison',
+    summary:
+      'Added a private, in-browser side-by-side text diff with readable change highlighting.',
+    changes: [
+      'Added a routed Text Diff utility with matching quote-tool styling.',
+      'Added paste, clear, swap, and ignore-whitespace controls.',
+      'Added aligned line and character-region highlighting with comparison statistics.',
+    ],
+    commits: [],
+  },
   {
     version: '1.7.0',
     date: '2026-08-17',

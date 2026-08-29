@@ -8,6 +8,7 @@
     <a mat-tab-link routerLink="/quotes-tool" [active]="activeUtility() === 'quotes'">
       Add Quotes
     </a>
+    <a mat-tab-link routerLink="/diff-tool" [active]="activeUtility() === 'diff'"> Text Diff </a>
     <a mat-tab-link routerLink="/password-tool" [active]="activeUtility() === 'password'">
       Password Generator
     </a>
@@ -16,7 +17,7 @@
 
 <mat-tab-nav-panel #tabPanel></mat-tab-nav-panel>
 
-<main class="page-shell" [class.page-shell--quotes]="activeUtility() === 'quotes'">
+<main class="page-shell" [class.page-shell--quotes]="activeUtility() !== 'password'">
   @if (activeUtility() === 'quotes') {
     <section class="hero">
       <div>
@@ -25,6 +26,14 @@
         <p class="lede">
           Wrap every row in quotes, optionally add commas, and copy a clean result.
         </p>
+      </div>
+    </section>
+  } @else if (activeUtility() === 'diff') {
+    <section class="hero">
+      <div>
+        <p class="eyebrow">Local text comparison</p>
+        <h1>Compare two blocks of text</h1>
+        <p class="lede">Find additions, removals, and edits without sending your text anywhere.</p>
       </div>
     </section>
   } @else {
@@ -379,6 +388,178 @@
           <strong>{{ resultStats().characters }}</strong>
         </mat-card>
       </div>
+    </section>
+  } @else if (activeUtility() === 'diff') {
+    <section class="tool-surface" aria-labelledby="diff-tool-title">
+      <div class="tool-header diff-tool-header">
+        <div>
+          <p class="eyebrow">Text diff</p>
+          <h2 id="diff-tool-title">Compare text</h2>
+        </div>
+        <div class="diff-global-actions">
+          <mat-checkbox
+            [ngModel]="ignoreDiffWhitespace()"
+            (ngModelChange)="ignoreDiffWhitespace.set($event)"
+          >
+            Ignore whitespace
+          </mat-checkbox>
+          <button mat-stroked-button type="button" (click)="swapDiff()">Swap sides</button>
+          <button mat-stroked-button type="button" (click)="clearDiff()">Clear both</button>
+        </div>
+      </div>
+
+      <div class="editor-grid diff-input-grid">
+        <mat-card appearance="outlined" class="editor-card">
+          <mat-card-header><mat-card-title>Original</mat-card-title></mat-card-header>
+          <mat-card-content>
+            <label class="code-field diff-code-field">
+              <div class="diff-wrap-gutter" aria-hidden="true" aria-label="Original row numbers">
+                <div [style.transform]="'translateY(' + -diffLeftScrollTop() + 'px)'">
+                  @for (line of diffLeftLines(); track $index) {
+                    <div class="diff-wrap-gutter-row">
+                      <span>{{ $index + 1 }}</span
+                      ><i>{{ line || ' ' }}</i>
+                    </div>
+                  }
+                </div>
+              </div>
+              <textarea
+                #diffLeftTextarea
+                class="code-textarea diff-textarea"
+                rows="12"
+                wrap="soft"
+                spellcheck="false"
+                [value]="diffLeftText()"
+                (input)="setDiffText('left', $event)"
+                (scroll)="setDiffScroll('left', $event)"
+                placeholder="Paste or type the original text"
+              ></textarea>
+            </label>
+            <div class="diff-input-actions">
+              <button mat-flat-button color="primary" type="button" (click)="pasteDiff('left')">
+                Paste original
+              </button>
+              <button mat-stroked-button type="button" (click)="clearDiff('left')">Clear</button>
+              <span
+                >{{ diffLeftStats().rows }} lines · {{ diffLeftStats().words }} words ·
+                {{ diffLeftStats().characters }} characters</span
+              >
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card appearance="outlined" class="editor-card">
+          <mat-card-header><mat-card-title>Changed</mat-card-title></mat-card-header>
+          <mat-card-content>
+            <label class="code-field diff-code-field">
+              <div class="diff-wrap-gutter" aria-hidden="true" aria-label="Changed row numbers">
+                <div [style.transform]="'translateY(' + -diffRightScrollTop() + 'px)'">
+                  @for (line of diffRightLines(); track $index) {
+                    <div class="diff-wrap-gutter-row">
+                      <span>{{ $index + 1 }}</span
+                      ><i>{{ line || ' ' }}</i>
+                    </div>
+                  }
+                </div>
+              </div>
+              <textarea
+                #diffRightTextarea
+                class="code-textarea diff-textarea"
+                rows="12"
+                wrap="soft"
+                spellcheck="false"
+                [value]="diffRightText()"
+                (input)="setDiffText('right', $event)"
+                (scroll)="setDiffScroll('right', $event)"
+                placeholder="Paste or type the changed text"
+              ></textarea>
+            </label>
+            <div class="diff-input-actions">
+              <button mat-flat-button color="primary" type="button" (click)="pasteDiff('right')">
+                Paste changed
+              </button>
+              <button mat-stroked-button type="button" (click)="clearDiff('right')">Clear</button>
+              <span
+                >{{ diffRightStats().rows }} lines · {{ diffRightStats().words }} words ·
+                {{ diffRightStats().characters }} characters</span
+              >
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <div class="diff-summary" aria-live="polite">
+        <div class="diff-stat diff-stat--changed">
+          <strong>{{ diffStats().changed }}</strong
+          ><span>Changed</span>
+        </div>
+        <div class="diff-stat diff-stat--added">
+          <strong>{{ diffStats().added }}</strong
+          ><span>Added</span>
+        </div>
+        <div class="diff-stat diff-stat--removed">
+          <strong>{{ diffStats().removed }}</strong
+          ><span>Removed</span>
+        </div>
+        <div class="diff-stat">
+          <strong>{{ diffStats().unchanged }}</strong
+          ><span>Unchanged</span>
+        </div>
+      </div>
+
+      @if (diffUsesLargeTextMode()) {
+        <div class="large-diff-notice" role="status">
+          <strong>Large comparison mode</strong> Lines are compared by position to keep the browser
+          responsive.
+        </div>
+      }
+
+      <mat-card appearance="outlined" class="diff-result-card">
+        <mat-card-header>
+          <mat-card-title>Differences</mat-card-title>
+          <div class="diff-legend" aria-label="Diff legend">
+            <span class="legend-removed">Removed</span><span class="legend-added">Added</span>
+          </div>
+        </mat-card-header>
+        <mat-card-content>
+          @if (!diffHasContent()) {
+            <div class="diff-empty">Add text to both editors to see their differences.</div>
+          } @else if (diffIsIdentical()) {
+            <div class="diff-identical">
+              The two texts are identical{{
+                ignoreDiffWhitespace() ? ' when whitespace is ignored' : ''
+              }}.
+            </div>
+          } @else {
+            <div class="diff-view" role="table" aria-label="Side-by-side text differences">
+              @for (row of diffRows(); track $index) {
+                <div class="diff-row" [class]="'diff-row diff-row--' + row.kind" role="row">
+                  <div class="diff-cell diff-cell--left" role="cell">
+                    <span class="diff-line-number">{{ row.leftLine ?? '' }}</span>
+                    <code>
+                      @for (fragment of row.left; track $index) {
+                        <span [class.diff-fragment--changed]="fragment.changed">{{
+                          fragment.text
+                        }}</span>
+                      }
+                    </code>
+                  </div>
+                  <div class="diff-cell diff-cell--right" role="cell">
+                    <span class="diff-line-number">{{ row.rightLine ?? '' }}</span>
+                    <code>
+                      @for (fragment of row.right; track $index) {
+                        <span [class.diff-fragment--changed]="fragment.changed">{{
+                          fragment.text
+                        }}</span>
+                      }
+                    </code>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </mat-card-content>
+      </mat-card>
     </section>
   } @else {
     <section class="tool-surface password-surface" aria-labelledby="password-tool-title">

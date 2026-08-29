@@ -30,6 +30,61 @@ describe('App', () => {
     expect(compiled.querySelector('h1')?.textContent).toContain('Add quotes to text');
   });
 
+  it('compares text locally and identifies changed, added, and unchanged rows', () => {
+    const fixture = TestBed.createComponent(App);
+    const app = fixture.componentInstance as any;
+
+    app.diffLeftText.set('alpha\nbravo\ncharlie');
+    app.diffRightText.set('alpha\nBRAVO\ncharlie\ndelta');
+
+    expect(app.diffStats()).toEqual({ unchanged: 2, changed: 1, added: 1, removed: 0 });
+    expect(app.diffRows().find((row: any) => row.kind === 'changed').leftLine).toBe(2);
+  });
+
+  it('can ignore whitespace-only differences', () => {
+    const fixture = TestBed.createComponent(App);
+    const app = fixture.componentInstance as any;
+
+    app.diffLeftText.set('alpha   bravo');
+    app.diffRightText.set('alpha bravo');
+    expect(app.diffStats().changed).toBe(1);
+
+    app.ignoreDiffWhitespace.set(true);
+    expect(app.diffStats().unchanged).toBe(1);
+    expect(app.diffIsIdentical()).toBe(true);
+  });
+
+  it('compares and fragments very large single-line text', () => {
+    const fixture = TestBed.createComponent(App);
+    const app = fixture.componentInstance as any;
+    const shared = 'word '.repeat(40_000);
+
+    app.diffLeftText.set(`${shared}before${shared}`);
+    app.diffRightText.set(`${shared}after${shared}`);
+
+    expect(app.diffStats().changed).toBe(1);
+    expect(app.diffRows()[0].left.some((fragment: any) => fragment.changed)).toBe(true);
+    expect(app.diffLeftLines()).toHaveLength(1);
+  });
+
+  it('renders one input row number per newline-delimited row', () => {
+    const fixture = TestBed.createComponent(App);
+    const app = fixture.componentInstance as any;
+
+    app.activeUtility.set('diff');
+    app.diffLeftText.set(`${'wrapped content '.repeat(40)}\nsecond row\nthird row`);
+    fixture.detectChanges();
+
+    const numbers = Array.from(
+      fixture.nativeElement.querySelectorAll(
+        '.diff-input-grid .editor-card:first-child .diff-wrap-gutter-row > span',
+      ),
+      (element: any) => element.textContent.trim(),
+    );
+
+    expect(numbers).toEqual(['1', '2', '3']);
+  });
+
   it('keeps large inputs from rendering one gutter row per input row', () => {
     const fixture = TestBed.createComponent(App);
     const app = fixture.componentInstance as any;

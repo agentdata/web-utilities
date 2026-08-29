@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.8.0 - 2026-08-28
+
+Local text comparison.
+
+- Added a routed Text Diff utility with matching quote-tool styling.
+- Added paste, clear, swap, and ignore-whitespace controls.
+- Added aligned line and character-region highlighting with comparison statistics.
+
 ## 1.7.0 - 2026-08-17
 
 Input case conversion.
