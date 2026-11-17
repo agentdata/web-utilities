@@ -20,7 +20,7 @@ import { MatRadioModule } from '@angular/material/radio';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatTooltipModule } from '@angular/material/tooltip';
+import { MAT_TOOLTIP_DEFAULT_OPTIONS, MatTooltipModule } from '@angular/material/tooltip';
 import { NavigationEnd, Router, RouterLink } from '@angular/router';
 import { filter } from 'rxjs';
 import { APP_VERSION, CHANGELOG } from './version';
@@ -1281,6 +1281,7 @@ type InputInsights = {
     MatTooltipModule,
     RouterLink,
   ],
+  providers: [{ provide: MAT_TOOLTIP_DEFAULT_OPTIONS, useValue: { showDelay: 500 } }],
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })

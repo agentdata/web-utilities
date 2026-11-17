@@ -7,9 +7,17 @@ export type ChangelogEntry = {
   commits: string[];
 };
 
-export const APP_VERSION = '1.8.1';
+export const APP_VERSION = '1.8.2';
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.8.2',
+    date: '2026-11-17',
+    title: 'Tooltip hover delay',
+    summary: 'Reduced accidental tooltip popups by waiting briefly before showing tooltips.',
+    changes: ['Added a 500 ms show delay to tooltips across the app.'],
+    commits: [],
+  },
   {
     version: '1.8.1',
     date: '2026-08-28',

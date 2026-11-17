@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.8.2 - 2026-11-17
+
+Tooltip hover delay.
+
+- Added a 500 ms show delay to tooltips across the app.
+
 ## 1.8.1 - 2026-08-28
 
 Large text diff usability.
