@@ -61,6 +61,34 @@ describe('App', () => {
     expect(app.diffIsIdentical()).toBe(true);
   });
 
+  it('sorts comparison copies naturally and preserves original inputs and source line numbers', () => {
+    const fixture = TestBed.createComponent(App);
+    const app = fixture.componentInstance as any;
+    app.diffLeftText.set('item10\nitem2');
+    app.diffRightText.set('item2\nitem10');
+    app.diffSortMode.set('natural');
+
+    expect(app.diffRows().map((row: any) => [row.leftLine, row.rightLine])).toEqual([[2, 1], [1, 2]]);
+    expect(app.diffLeftText()).toBe('item10\nitem2');
+    expect(app.diffRightText()).toBe('item2\nitem10');
+  });
+
+  it('ignores case and can hide matching rows', () => {
+    const fixture = TestBed.createComponent(App);
+    const app = fixture.componentInstance as any;
+    app.diffLeftText.set('Alpha\nremove');
+    app.diffRightText.set('alpha\nadd');
+    app.ignoreDiffCase.set(true);
+
+    expect(app.diffStats().unchanged).toBe(1);
+    expect(app.diffStats().changed).toBe(1);
+    expect(app.diffRows()[0].left[0].changed).toBe(false);
+
+    app.showDiffDifferencesOnly.set(true);
+    expect(app.diffRows()).toHaveLength(1);
+    expect(app.diffRows()[0].kind).toBe('changed');
+  });
+
   it('compares and fragments very large single-line text', () => {
     const fixture = TestBed.createComponent(App);
     const app = fixture.componentInstance as any;

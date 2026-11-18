@@ -27,6 +27,7 @@ import { APP_VERSION, CHANGELOG } from './version';
 
 type QuoteType = 'double' | 'single';
 type UtilityTab = 'quotes' | 'diff' | 'password';
+type DiffSortMode = 'original' | 'alphabetical' | 'natural';
 type QuoteAction =
   | 'paste'
   | 'add'
@@ -1300,6 +1301,9 @@ export class App {
   protected readonly diffLeftText = signal('');
   protected readonly diffRightText = signal('');
   protected readonly ignoreDiffWhitespace = signal(false);
+  protected readonly ignoreDiffCase = signal(false);
+  protected readonly showDiffDifferencesOnly = signal(false);
+  protected readonly diffSortMode = signal<DiffSortMode>('original');
   protected readonly diffLeftScrollTop = signal(0);
   protected readonly diffRightScrollTop = signal(0);
   protected readonly quoteType = signal<QuoteType>('single');
@@ -1583,12 +1587,27 @@ export class App {
   }
 
   private buildDiffRows(): DiffRow[] {
-    const left = this.diffLeftText() ? this.diffLeftText().split(/\r?\n/) : [];
-    const right = this.diffRightText() ? this.diffRightText().split(/\r?\n/) : [];
+    const makeLines = (text: string) =>
+      (text ? text.split(/\r?\n/) : []).map((value, index) => ({ value, line: index + 1 }));
     const normalize = (value: string) =>
-      this.ignoreDiffWhitespace() ? value.replace(/\s+/g, ' ').trim() : value;
-    const leftValues = left.map(normalize);
-    const rightValues = right.map(normalize);
+      (this.ignoreDiffWhitespace() ? value.replace(/\s+/g, ' ').trim() : value).toLocaleLowerCase(
+        this.ignoreDiffCase() ? undefined : 'und',
+      );
+    const leftEntries = makeLines(this.diffLeftText());
+    const rightEntries = makeLines(this.diffRightText());
+    const sort = (entries: typeof leftEntries) => {
+      const mode = this.diffSortMode();
+      if (mode === 'original') return entries;
+      const collator = new Intl.Collator(undefined, {
+        numeric: mode === 'natural',
+        sensitivity: 'base',
+      });
+      return [...entries].sort((a, b) => collator.compare(a.value, b.value) || a.line - b.line);
+    };
+    const left = sort(leftEntries);
+    const right = sort(rightEntries);
+    const leftValues = left.map(({ value }) => normalize(value));
+    const rightValues = right.map(({ value }) => normalize(value));
 
     // Keep comparison responsive for unusually large pastes by falling back to positional matching.
     if (left.length * right.length > 2_000_000) {
@@ -1596,10 +1615,10 @@ export class App {
       for (let index = 0; index < Math.max(left.length, right.length); index += 1) {
         rows.push(
           this.makeDiffRow(
-            left[index],
-            right[index],
-            left[index] === undefined ? undefined : index + 1,
-            right[index] === undefined ? undefined : index + 1,
+            left[index]?.value,
+            right[index]?.value,
+            left[index]?.line,
+            right[index]?.line,
             normalize,
           ),
         );
@@ -1627,14 +1646,14 @@ export class App {
     let j = 0;
     while (i < left.length || j < right.length) {
       if (i < left.length && j < right.length && leftValues[i] === rightValues[j]) {
-        operations.push({ side: 'both', value: left[i], line: i + 1, rightLine: j + 1 });
+        operations.push({ side: 'both', value: left[i].value, line: left[i].line, rightLine: right[j].line });
         i += 1;
         j += 1;
       } else if (j < right.length && (i === left.length || table[i][j + 1] >= table[i + 1][j])) {
-        operations.push({ side: 'right', value: right[j], line: j + 1 });
+        operations.push({ side: 'right', value: right[j].value, line: right[j].line });
         j += 1;
       } else {
-        operations.push({ side: 'left', value: left[i], line: i + 1 });
+        operations.push({ side: 'left', value: left[i].value, line: left[i].line });
         i += 1;
       }
     }
@@ -1662,7 +1681,10 @@ export class App {
         );
       }
     }
-    return rows;
+    const visibleRows = this.showDiffDifferencesOnly()
+      ? rows.filter((row) => row.kind !== 'unchanged')
+      : rows;
+    return visibleRows;
   }
 
   private makeDiffRow(
@@ -1683,6 +1705,12 @@ export class App {
         rightLine,
         left: [{ text: left, changed: false }],
         right: [{ text: right, changed: false }],
+      };
+    }
+    if (this.ignoreDiffCase() && left.toLocaleLowerCase() === right.toLocaleLowerCase()) {
+      return {
+        kind: 'changed', leftLine, rightLine,
+        left: [{ text: left, changed: false }], right: [{ text: right, changed: false }],
       };
     }
     let prefix = 0;

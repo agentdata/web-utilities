@@ -7,9 +7,21 @@ export type ChangelogEntry = {
   commits: string[];
 };
 
-export const APP_VERSION = '1.8.2';
+export const APP_VERSION = '1.9.0';
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.9.0',
+    date: '2026-11-17',
+    title: 'List comparison controls',
+    summary:
+      'Added shared sorting and comparison filters to make it easier to compare lists in Text Diff.',
+    changes: [
+      'Added original-order, alphabetical, and natural sorting to both comparison sides without changing input text.',
+      'Added Ignore case and Show differences only controls alongside Ignore whitespace.',
+    ],
+    commits: [],
+  },
   {
     version: '1.8.2',
     date: '2026-11-17',

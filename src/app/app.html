@@ -397,12 +397,6 @@
           <h2 id="diff-tool-title">Compare text</h2>
         </div>
         <div class="diff-global-actions">
-          <mat-checkbox
-            [ngModel]="ignoreDiffWhitespace()"
-            (ngModelChange)="ignoreDiffWhitespace.set($event)"
-          >
-            Ignore whitespace
-          </mat-checkbox>
           <button mat-stroked-button type="button" (click)="swapDiff()">Swap sides</button>
           <button mat-stroked-button type="button" (click)="clearDiff()">Clear both</button>
         </div>
@@ -517,14 +511,39 @@
       <mat-card appearance="outlined" class="diff-result-card">
         <mat-card-header>
           <mat-card-title>Differences</mat-card-title>
-          <div class="diff-legend" aria-label="Diff legend">
-            <span class="legend-removed">Removed</span><span class="legend-added">Added</span>
+          <div class="diff-result-actions">
+            <mat-checkbox
+              [ngModel]="ignoreDiffWhitespace()"
+              (ngModelChange)="ignoreDiffWhitespace.set($event)"
+            >
+              Ignore whitespace
+            </mat-checkbox>
+            <mat-checkbox [ngModel]="ignoreDiffCase()" (ngModelChange)="ignoreDiffCase.set($event)">
+              Ignore case
+            </mat-checkbox>
+            <mat-checkbox
+              [ngModel]="showDiffDifferencesOnly()"
+              (ngModelChange)="showDiffDifferencesOnly.set($event)"
+            >
+              Show differences only
+            </mat-checkbox>
+            <label class="diff-sort-control">
+              <span>Sort comparison</span>
+              <select aria-label="Sort comparison" [ngModel]="diffSortMode()" (ngModelChange)="diffSortMode.set($event)">
+                <option value="original">Original order</option>
+                <option value="alphabetical">Alphabetical</option>
+                <option value="natural">Natural sort</option>
+              </select>
+            </label>
+            <div class="diff-legend" aria-label="Diff legend">
+              <span class="legend-removed">Removed</span><span class="legend-added">Added</span>
+            </div>
           </div>
         </mat-card-header>
         <mat-card-content>
           @if (!diffHasContent()) {
             <div class="diff-empty">Add text to both editors to see their differences.</div>
-          } @else if (diffIsIdentical()) {
+          } @else if (diffIsIdentical() || (showDiffDifferencesOnly() && !diffRows().length)) {
             <div class="diff-identical">
               The two texts are identical{{
                 ignoreDiffWhitespace() ? ' when whitespace is ignored' : ''
