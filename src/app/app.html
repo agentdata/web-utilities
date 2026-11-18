@@ -17,6 +17,98 @@
 
 <mat-tab-nav-panel #tabPanel></mat-tab-nav-panel>
 
+@if (showWhatsNew() && latestChangelog; as latest) {
+  <div class="whats-new-backdrop" role="presentation">
+    <section
+      class="whats-new-dialog"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="whats-new-title"
+      aria-describedby="whats-new-summary"
+    >
+      <div class="whats-new-dialog__header">
+        <span class="whats-new-eyebrow">What’s new</span>
+        <div class="whats-new-dialog__header-actions">
+          <span class="whats-new-version">v{{ latest.version }}</span>
+          <button
+            class="whats-new-close"
+            type="button"
+            aria-label="Close without acknowledging changes"
+            title="Close without acknowledging"
+            (click)="closeWhatsNew()"
+          >
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+      </div>
+      <h2 id="whats-new-title">{{ latest.title }}</h2>
+      <p id="whats-new-summary" class="whats-new-summary">{{ latest.summary }}</p>
+      <ul>
+        @for (change of latest.changes; track change) {
+          <li>{{ change }}</li>
+        }
+      </ul>
+      <div class="whats-new-dialog__actions">
+        <button mat-button type="button" (click)="closeWhatsNew()">Close for now</button>
+        <button mat-flat-button color="primary" type="button" (click)="acknowledgeWhatsNew()">
+          Got it
+        </button>
+      </div>
+      @if (previousChangelog.length) {
+        <button
+          class="previous-changelog__link"
+          type="button"
+          (click)="showWhatsNewHistory.set(true)"
+        >
+          Browse previous updates <span aria-hidden="true">→</span>
+        </button>
+      }
+    </section>
+  </div>
+}
+
+@if (showWhatsNewHistory()) {
+  <div class="whats-new-history-backdrop" role="presentation">
+    <section
+      class="whats-new-history"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="previous-changelog-title"
+    >
+      <div class="whats-new-history__header">
+        <div>
+          <span class="whats-new-eyebrow">Release notes</span>
+          <h2 id="previous-changelog-title">Previous updates</h2>
+        </div>
+        <button
+          class="whats-new-close"
+          type="button"
+          aria-label="Close previous updates"
+          (click)="showWhatsNewHistory.set(false)"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="previous-changelog__list previous-changelog__list--panel">
+        @for (entry of previousChangelog; track entry.version) {
+          <article class="previous-changelog__entry">
+            <div class="previous-changelog__meta">
+              <strong>v{{ entry.version }} · {{ entry.title }}</strong>
+              <time [attr.datetime]="entry.date">{{ entry.date }}</time>
+            </div>
+            <p>{{ entry.summary }}</p>
+            <ul>
+              @for (change of entry.changes; track change) {
+                <li>{{ change }}</li>
+              }
+            </ul>
+          </article>
+        }
+      </div>
+    </section>
+  </div>
+}
+
 <main class="page-shell" [class.page-shell--quotes]="activeUtility() !== 'password'">
   @if (activeUtility() === 'quotes') {
     <section class="hero">

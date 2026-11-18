@@ -28,6 +28,246 @@ body {
   box-sizing: border-box;
 }
 
+.whats-new-backdrop {
+  position: fixed;
+  z-index: 1000;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(17, 27, 44, 0.48);
+}
+
+.whats-new-dialog {
+  width: min(560px, 100%);
+  max-height: min(680px, calc(100vh - 40px));
+  overflow: auto;
+  padding: clamp(22px, 5vw, 32px);
+  border: 1px solid rgba(24, 32, 47, 0.12);
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 24px 70px rgba(10, 22, 40, 0.28);
+
+  h2 {
+    margin: 12px 0 8px;
+    color: #18202f;
+    font-size: clamp(1.35rem, 4vw, 1.8rem);
+  }
+
+  ul {
+    display: grid;
+    gap: 10px;
+    margin: 18px 0 24px;
+    padding-left: 22px;
+    color: #39465b;
+    line-height: 1.5;
+  }
+}
+
+.whats-new-dialog__header,
+.whats-new-dialog__actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.whats-new-dialog__header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.whats-new-close {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: #596579;
+  cursor: pointer;
+  font-size: 1.6rem;
+  line-height: 1;
+
+  &:hover {
+    background: #f0f3f7;
+    color: #18202f;
+  }
+
+  &:focus-visible {
+    outline: 2px solid #174ea6;
+    outline-offset: 2px;
+  }
+}
+
+.whats-new-eyebrow {
+  color: #5b6475;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.whats-new-version {
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: #edf4ff;
+  color: #174ea6;
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
+.whats-new-summary {
+  margin: 0;
+  color: #596579;
+  line-height: 1.5;
+}
+
+.previous-changelog {
+  margin: 18px 0 20px;
+  border: 1px solid rgba(24, 32, 47, 0.14);
+  border-radius: 10px;
+}
+
+.previous-changelog__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 16px;
+  padding: 4px 0;
+  border: 0;
+  background: transparent;
+  color: #174ea6;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 750;
+
+  &:hover {
+    color: #0d387e;
+    text-decoration: underline;
+  }
+}
+
+.whats-new-history-backdrop {
+  position: fixed;
+  z-index: 1001;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(17, 27, 44, 0.58);
+}
+
+.whats-new-history {
+  display: flex;
+  width: min(680px, 100%);
+  max-height: min(760px, calc(100vh - 40px));
+  flex-direction: column;
+  padding: clamp(20px, 4vw, 30px);
+  border: 1px solid rgba(24, 32, 47, 0.12);
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 24px 70px rgba(10, 22, 40, 0.32);
+}
+
+.whats-new-history__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(24, 32, 47, 0.12);
+
+  h2 {
+    margin: 8px 0 0;
+    color: #18202f;
+    font-size: 1.5rem;
+  }
+}
+
+.previous-changelog__toggle {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border: 0;
+  border-radius: inherit;
+  background: #f7f9fc;
+  color: #243047;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 750;
+  text-align: left;
+}
+
+.previous-changelog__chevron {
+  color: #596579;
+  font-size: 1.25rem;
+  transform: rotate(0deg);
+  transition: transform 160ms ease;
+
+  &.is-expanded {
+    transform: rotate(180deg);
+  }
+}
+
+.previous-changelog__list {
+  display: grid;
+  max-height: min(320px, 38vh);
+  gap: 0;
+  overflow: auto;
+  padding: 0 14px;
+  overscroll-behavior: contain;
+}
+
+.previous-changelog__list--panel {
+  max-height: none;
+  flex: 1;
+  margin-top: 4px;
+  padding: 0 4px;
+}
+
+.previous-changelog__entry {
+  padding: 14px 0;
+  border-top: 1px solid rgba(24, 32, 47, 0.1);
+
+  p {
+    margin: 6px 0;
+    color: #596579;
+    font-size: 0.88rem;
+    line-height: 1.45;
+  }
+
+  ul {
+    gap: 6px;
+    margin: 8px 0 0;
+    color: #39465b;
+    font-size: 0.85rem;
+  }
+}
+
+.previous-changelog__meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 6px 12px;
+  color: #243047;
+  font-size: 0.86rem;
+
+  time {
+    color: #6b7586;
+    font-size: 0.78rem;
+  }
+}
+
+.whats-new-dialog__actions {
+  justify-content: flex-end;
+}
+
 button,
 input,
 textarea {

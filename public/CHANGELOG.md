@@ -1,5 +1,21 @@
 # Changelog
 
+## 1.10.0 - 2026-11-17
+
+Release announcements.
+
+- Added a What’s new popup with current release notes and per-browser acknowledgement.
+- Stop prompting for releases older than 14 days.
+- Added a separate scrollable panel for browsing previous updates.
+- Added a close option that dismisses the popup without acknowledging the release.
+
+## 1.9.0 - 2026-11-17
+
+List comparison controls.
+
+- Added original-order, alphabetical, and natural sorting to both comparison sides without changing input text.
+- Added Ignore case and Show differences only controls alongside Ignore whitespace.
+
 ## 1.8.2 - 2026-11-17
 
 Tooltip hover delay.

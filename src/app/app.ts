@@ -98,6 +98,8 @@ const QUOTE_BY_TYPE: Record<QuoteType, string> = {
   single: "'",
 };
 const QUOTE_OPTIONS_COOKIE_NAME = 'quoteOptions';
+const ACKNOWLEDGED_CHANGELOG_VERSION_KEY = 'acknowledgedChangelogVersion';
+const CHANGELOG_PROMPT_MAX_AGE_MS = 14 * 24 * 60 * 60 * 1000;
 const EDITOR_VISIBLE_ROWS = 16;
 const EDITOR_LINE_HEIGHT = 23;
 const EDITOR_VERTICAL_PADDING = 12;
@@ -1342,6 +1344,11 @@ export class App {
   protected readonly resultScrollTop = signal(0);
   protected readonly appVersion = APP_VERSION;
   protected readonly changelog = CHANGELOG;
+  protected readonly latestChangelog = CHANGELOG.find((entry) => entry.version === APP_VERSION);
+  protected readonly previousChangelog = CHANGELOG.filter((entry) => entry.version !== APP_VERSION);
+  protected readonly showWhatsNew = signal(false);
+  protected readonly showPreviousChangelog = signal(false);
+  protected readonly showWhatsNewHistory = signal(false);
 
   private lastScrollY = 0;
   private quoteFeedbackId = 0;
@@ -1539,6 +1546,41 @@ export class App {
     }
 
     this.generatePassword();
+    this.showWhatsNew.set(
+      this.isCurrentChangelogRecent() &&
+        this.readAcknowledgedChangelogVersion() !== APP_VERSION,
+    );
+  }
+
+  private isCurrentChangelogRecent(): boolean {
+    if (!this.latestChangelog) {
+      return false;
+    }
+
+    const releaseDate = new Date(`${this.latestChangelog.date}T00:00:00`).getTime();
+    const age = Date.now() - releaseDate;
+    return Number.isFinite(releaseDate) && age >= 0 && age <= CHANGELOG_PROMPT_MAX_AGE_MS;
+  }
+
+  protected acknowledgeWhatsNew(): void {
+    try {
+      localStorage.setItem(ACKNOWLEDGED_CHANGELOG_VERSION_KEY, APP_VERSION);
+    } catch {
+      // Keep the dialog usable when browser storage is unavailable.
+    }
+    this.showWhatsNew.set(false);
+  }
+
+  protected closeWhatsNew(): void {
+    this.showWhatsNew.set(false);
+  }
+
+  private readAcknowledgedChangelogVersion(): string | null {
+    try {
+      return localStorage.getItem(ACKNOWLEDGED_CHANGELOG_VERSION_KEY);
+    } catch {
+      return null;
+    }
   }
 
   private setActiveUtilityFromUrl(url: string): void {

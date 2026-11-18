@@ -7,9 +7,22 @@ export type ChangelogEntry = {
   commits: string[];
 };
 
-export const APP_VERSION = '1.9.0';
+export const APP_VERSION = '1.10.0';
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.10.0',
+    date: '2026-11-17',
+    title: 'Release announcements',
+    summary:
+      'Added a timely What’s new popup so the team can see recent updates, browse release history, and dismiss announcements at their own pace.',
+    changes: [
+      'Show the current release notes to users who have not acknowledged the release.',
+      'Remember acknowledgements per browser and stop prompting for releases older than 14 days.',
+      'Allow users to close the popup without acknowledging and browse previous updates in a separate scrollable panel.',
+    ],
+    commits: [],
+  },
   {
     version: '1.9.0',
     date: '2026-11-17',
