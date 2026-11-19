@@ -13,12 +13,12 @@ export const CHANGELOG: ChangelogEntry[] = [
   {
     version: '1.12.0',
     date: '2026-11-18',
-    title: 'Copied formatter history',
+    title: 'History',
     summary:
-      'Added a history of copied formatter inputs so previous lists can be restored and formatted again.',
+      'You can now find and reuse lists you copied before.',
     changes: [
-      'Saved up to 10 recent distinct inputs when copying formatted results, without duplicating repeated copies of unchanged input.',
-      'Added a readable history panel with first-row previews, row counts, relative times, and a Restore input action.',
+      'The app saves your 10 most recent lists when you copy a result.',
+      'Open History to see a preview of each list and load one back into the input box.',
     ],
     commits: [],
   },

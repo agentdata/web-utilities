@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.12.0 - 2026-11-18
+
+History.
+
+- You can now find and reuse lists you copied before.
+- The app saves your 10 most recent lists when you copy a result.
+- Open History to see a preview of each list and load one back into the input box.
+
 ## 1.11.0 - 2026-11-18
 
 Parenthesized quote output.
