@@ -10,136 +10,132 @@ History.
 
 ## 1.11.0 - 2026-11-18
 
-Parenthesized quote output.
+Parentheses.
 
-- Added an Add parentheses option to wrap each quoted row, for output such as `('row-element'),`.
-- Saved the option with other quote preferences while keeping existing saved settings compatible.
+- You can now put parentheses around each quoted row.
+- Turn on Add parentheses to wrap each row, like `('item'),`.
+- Your choice is saved for next time.
 
 ## 1.10.0 - 2026-11-17
 
-Release announcements.
+What’s New.
 
-- Added a What’s new popup with current release notes and per-browser acknowledgement.
-- Stop prompting for releases older than 14 days.
-- Added a separate scrollable panel for browsing previous updates.
-- Added a close option that dismisses the popup without acknowledging the release.
+- A popup shows the latest changes when you have not seen them yet.
+- You can close the popup or open the list of older updates.
+- The app stops showing an update after two weeks.
 
 ## 1.9.0 - 2026-11-17
 
-List comparison controls.
+Compare Lists.
 
-- Added original-order, alphabetical, and natural sorting to both comparison sides without changing input text.
-- Added Ignore case and Show differences only controls alongside Ignore whitespace.
+- Sort each list as entered, alphabetically, or by number.
+- Ignore letter case or show only rows that differ.
 
 ## 1.8.2 - 2026-11-17
 
-Tooltip hover delay.
+Tooltips.
 
-- Added a 500 ms show delay to tooltips across the app.
+- Help tips wait a moment before they appear.
+- This helps prevent tips from appearing by accident.
 
 ## 1.8.1 - 2026-08-28
 
-Large text diff usability.
+Long Lists.
 
-- Added word wrapping to the diff inputs and comparison output.
-- Kept logical row numbers aligned with newline-delimited rows while long rows wrap.
-- Added line, word, and character counts for both inputs.
-- Clarified modified-line statistics and added character-level addition and removal counts.
-- Added a visible fallback notice when large comparisons use positional line matching.
+- Long lines wrap so they are easier to read when comparing lists.
+- Line numbers stay with their rows when text wraps.
+- See line, word, and character counts for both lists.
+- See how many lines and characters were added or removed.
+- A notice appears when a very large comparison uses a simpler matching method.
 
 ## 1.8.0 - 2026-08-28
 
-Local text comparison.
+Compare Text.
 
-- Added a routed Text Diff utility with matching quote-tool styling.
-- Added paste, clear, swap, and ignore-whitespace controls.
-- Added aligned line and character-region highlighting with comparison statistics.
+- Compare two lists side by side and see what changed.
+- Paste, clear, or swap the two lists.
+- Choose to ignore extra spaces.
+- See changed rows and a count of the differences.
 
 ## 1.7.0 - 2026-08-17
 
-Input case conversion.
+Change Letter Case.
 
-- Added Uppercase and Lowercase cleanup buttons to the quote tool.
-- Preserved row structure while converting the complete input in one linear operation.
-- Added coverage for case conversion with inputs containing 100,000 rows.
+- Change all letters in your list to uppercase or lowercase.
+- Use the Uppercase or Lowercase button in the quote tool.
+- Your rows stay in the same order.
 
 ## 1.6.2 - 2026-07-16
 
-Quote validation fixes.
+Quote Cleanup.
 
-- Highlighted cleanup buttons when their matching quote input issue is present.
-- Kept focus in the editor after typing or pasting validation issues.
-- Fixed cleanup button widths so action label changes do not shift the toolbar.
+- It is easier to spot and fix quote issues in your list.
+- The matching cleanup button is highlighted when an issue is found.
+- The cursor stays in the input box after you type or paste.
+- Buttons stay in place when their labels change.
 
 ## 1.6.1 - 2026-07-10
 
-Wider quote tool layout.
+More Room.
 
-- Increased the max page width on the quote tool view.
+- The quote tool is wider, giving you more room to work.
+- The input and result areas have more space.
 
 ## 1.6.0 - 2026-07-10
 
-Versioned changelog and quote feedback.
+Clearer Actions.
 
-- Added a standard app version source for the UI and release references.
-- Added the current version to the footer with a changelog popover.
-- Added user-facing and AI-readable changelog files.
-- Added visible action feedback for paste, add, cleanup, and copy flows.
-- Improved editor button layout and clipboard input handling.
-- Added interaction animations for quote input actions.
-- Commits: `2b88ae6`, `61db0a3`
+- Quote tool actions now give clearer feedback, and you can view app updates.
+- See a message when you paste, add, clean up, or copy text.
+- Find the app version and update history in the footer.
+- The quote tool buttons are easier to use.
 
 ## 1.5.0 - 2026-06-18
 
-PWA and quote warning polish.
+Install and Cleanup.
 
-- Added PWA manifest/service worker assets and fallback icons.
-- Unified quote warning states and highlighted duplicate quote rows.
-- Reduced title height and moved quote options/results controls into a more compact layout.
-- Commits: `ec19bcd`, `419acd0`, `9988684`, `7a61a2c`, `bca4b54`, `61d3dbf`
+- You can install the app on your device.
+- Duplicate rows and quote issues are easier to see.
+- Quote options and results take up less space.
 
 ## 1.4.0 - 2026-06-08
 
-Utility routing.
+More Tools.
 
-- Added routes for the quote tool and password generator.
-- Updated navigation to switch between utilities directly.
-- Commit: `a82064c`
+- Use the quote tool and password generator from the same app.
+- Use the navigation links to switch between the tools.
 
 ## 1.3.0 - 2026-06-04
 
-Persistent quote options.
+Saved Quote Options.
 
-- Stored selected quote options in a cookie.
-- Changed the default quote type to single quotes and refined omit-last-comma behavior.
-- Reworked quote option and cleanup button placement.
-- Normalized pasted input handling.
-- Commits: `0cbd6f3`, `51f0bef`, `37fe3bb`, `6f1e2fd`, `1cd36e0`
+- Your quote choices are saved, and pasting and cleanup are easier.
+- The app remembers your quote options.
+- Single quotes are selected by default, and you can leave off the last comma.
+- Quote options and cleanup buttons are easier to find.
+- Pasted text is handled more consistently.
 
 ## 1.2.0 - 2026-06-03
 
-Passphrase generator expansion.
+Passphrases.
 
-- Added themed passphrase generation.
-- Added configurable number and symbol placement.
-- Refactored password generation logic and added test coverage.
-- Adjusted row number width for large inputs.
-- Commits: `eb59f86`, `0c2b1a5`, `8b42f99`
+- Make passphrases with themes and choose where numbers or symbols go.
+- Choose from themed word lists.
+- Choose where to put numbers and symbols.
 
 ## 1.1.0 - 2026-06-01
 
-Password generator.
+Password Generator.
 
-- Added QWERTY-aware password generation.
-- Improved quote tool performance.
-- Added GitHub Pages and Wrangler deployment configuration.
-- Commits: `4ac16d2`, `780ba31`, `4bd1541`, `18297f6`, `521a691`, `30fb18d`, `7222557`, `bb7ab26`
+- Make passwords that are easier to type.
+- Choose password styles designed to be easier to type.
+- The quote tool handles large lists more smoothly.
 
 ## 1.0.0 - 2026-06-01
 
-Initial quote tool.
+Quote Tool.
 
-- Added the quote tool for wrapping rows in quotes and commas.
-- Added clipboard paste handling and input textarea focus support.
-- Added empty-row cleanup, input insights, and row-count alignment fixes.
-- Commits: `f0a1e5c`, `85be4cc`, `e3b3872`, `53020fb`
+- Turn a list into quoted text with commas.
+- Put quotes and commas around each row in your list.
+- Paste text and copy the finished result.
+- Remove empty rows and see how many rows are in your list.
