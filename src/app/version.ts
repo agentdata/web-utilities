@@ -7,9 +7,21 @@ export type ChangelogEntry = {
   commits: string[];
 };
 
-export const APP_VERSION = '1.10.0';
+export const APP_VERSION = '1.11.0';
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.11.0',
+    date: '2026-11-18',
+    title: 'Parenthesized quote output',
+    summary:
+      'Added an option to wrap each quoted row in parentheses for tuple-style output.',
+    changes: [
+      'Added an Add parentheses option to the quote formatter.',
+      'Saved the option with other quote preferences while keeping existing saved settings compatible.',
+    ],
+    commits: [],
+  },
   {
     version: '1.10.0',
     date: '2026-11-17',

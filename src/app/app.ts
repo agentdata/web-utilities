@@ -79,6 +79,7 @@ type PasswordChar = {
 type QuoteOptions = {
   quoteType: QuoteType;
   addCommas: boolean;
+  wrapInParentheses: boolean;
   omitLastComma: boolean;
 };
 
@@ -1310,6 +1311,7 @@ export class App {
   protected readonly diffRightScrollTop = signal(0);
   protected readonly quoteType = signal<QuoteType>('single');
   protected readonly addCommas = signal(true);
+  protected readonly wrapInParentheses = signal(false);
   protected readonly omitLastComma = signal(false);
   protected readonly copied = signal(false);
   protected readonly activeQuoteAction = signal<QuoteAction | undefined>(undefined);
@@ -1372,7 +1374,8 @@ export class App {
     const formattedRows = new Array<string>(rows.length);
 
     for (let index = 0; index < rows.length; index += 1) {
-      const formatted = `${quote}${rows[index]}${quote}`;
+      const quoted = `${quote}${rows[index]}${quote}`;
+      const formatted = this.wrapInParentheses() ? `(${quoted})` : quoted;
       const shouldAddComma = addCommas && (!omitLastComma || index < rows.length - 1);
 
       formattedRows[index] = shouldAddComma ? `${formatted},` : formatted;
@@ -1542,6 +1545,7 @@ export class App {
     if (savedQuoteOptions) {
       this.quoteType.set(savedQuoteOptions.quoteType);
       this.addCommas.set(savedQuoteOptions.addCommas);
+      this.wrapInParentheses.set(savedQuoteOptions.wrapInParentheses);
       this.omitLastComma.set(savedQuoteOptions.omitLastComma);
     }
 
@@ -2274,7 +2278,7 @@ export class App {
   protected saveQuoteOptions(): void {
     const value = `${this.quoteType() === 'single' ? 's' : 'd'}${this.addCommas() ? 1 : 0}${
       this.omitLastComma() ? 1 : 0
-    }`;
+    }${this.wrapInParentheses() ? 1 : 0}`;
 
     document.cookie = `${QUOTE_OPTIONS_COOKIE_NAME}=${value};path=/;max-age=31536000`;
   }
@@ -2285,7 +2289,7 @@ export class App {
       .find((cookie) => cookie.startsWith(`${QUOTE_OPTIONS_COOKIE_NAME}=`))
       ?.split('=')[1];
 
-    if (!cookieValue || cookieValue.length !== 3 || !'ds'.includes(cookieValue[0])) {
+    if (!cookieValue || ![3, 4].includes(cookieValue.length) || !'ds'.includes(cookieValue[0])) {
       return undefined;
     }
 
@@ -2293,6 +2297,7 @@ export class App {
       quoteType: cookieValue[0] === 's' ? 'single' : 'double',
       addCommas: cookieValue[1] === '1',
       omitLastComma: cookieValue[2] === '1',
+      wrapInParentheses: cookieValue[3] === '1',
     };
   }
 

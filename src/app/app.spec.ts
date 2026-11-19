@@ -261,9 +261,10 @@ describe('App', () => {
     app.quoteType.set('single');
     app.addCommas.set(false);
     app.omitLastComma.set(false);
+    app.wrapInParentheses.set(false);
     app.saveQuoteOptions();
 
-    expect(document.cookie).toContain('quoteOptions=s00');
+    expect(document.cookie).toContain('quoteOptions=s000');
   });
 
   it('removes terminal line breaks from pasted quote input', () => {
@@ -277,6 +278,16 @@ describe('App', () => {
 
     expect(app.inputText()).toBe('alpha\nbravo');
     expect(app.resultText()).toBe("'alpha',\n'bravo',");
+  });
+
+  it('wraps quoted rows in parentheses when enabled', () => {
+    const fixture = TestBed.createComponent(App);
+    const app = fixture.componentInstance as any;
+
+    app.inputText.set('row-element');
+    app.wrapInParentheses.set(true);
+
+    expect(app.resultText()).toBe("('row-element'),");
   });
 
   it('generates an alternating-hand qwerty password by default', () => {

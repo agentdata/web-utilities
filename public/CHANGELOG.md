@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.11.0 - 2026-11-18
+
+Parenthesized quote output.
+
+- Added an Add parentheses option to wrap each quoted row, for output such as `('row-element'),`.
+- Saved the option with other quote preferences while keeping existing saved settings compatible.
+
 ## 1.10.0 - 2026-11-17
 
 Release announcements.

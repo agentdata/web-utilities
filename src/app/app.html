@@ -398,6 +398,13 @@
                 </mat-checkbox>
 
                 <mat-checkbox
+                  [ngModel]="wrapInParentheses()"
+                  (ngModelChange)="wrapInParentheses.set($event); saveQuoteOptions()"
+                >
+                  Add parentheses
+                </mat-checkbox>
+
+                <mat-checkbox
                   [disabled]="!addCommas()"
                   [ngModel]="omitLastComma()"
                   (ngModelChange)="omitLastComma.set($event); saveQuoteOptions()"
