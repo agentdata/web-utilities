@@ -1289,7 +1289,6 @@ type QuoteHistoryEntry = { input: string; output: string; copiedAt: number };
   ],
   providers: [{ provide: MAT_TOOLTIP_DEFAULT_OPTIONS, useValue: { showDelay: 500 } }],
   templateUrl: './app.html',
-  styleUrl: './app.scss',
 })
 export class App {
   private readonly snackBar = inject(MatSnackBar);
