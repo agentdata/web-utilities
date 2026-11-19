@@ -1268,6 +1268,8 @@ type InputInsights = {
   whitespaceRowCount: number;
 };
 
+type QuoteHistoryEntry = { input: string; output: string; copiedAt: number };
+
 @Component({
   selector: 'app-root',
   imports: [
@@ -1314,6 +1316,7 @@ export class App {
   protected readonly wrapInParentheses = signal(false);
   protected readonly omitLastComma = signal(false);
   protected readonly copied = signal(false);
+  protected readonly quoteHistory = signal<QuoteHistoryEntry[]>([]);
   protected readonly activeQuoteAction = signal<QuoteAction | undefined>(undefined);
   protected readonly quoteFeedback = signal<QuoteFeedback | undefined>(undefined);
   protected readonly passwordCopied = signal(false);
@@ -2093,7 +2096,15 @@ export class App {
   }
 
   protected async copyResult(): Promise<void> {
-    await navigator.clipboard?.writeText(this.resultText());
+    const input = this.inputText();
+    const output = this.resultText();
+    await navigator.clipboard?.writeText(output);
+    this.quoteHistory.update((history) => {
+      if (history[0]?.input === input) {
+        return [{ input, output, copiedAt: Date.now() }, ...history.slice(1)];
+      }
+      return [{ input, output, copiedAt: Date.now() }, ...history].slice(0, 10);
+    });
     this.copied.set(true);
     this.showQuoteFeedback('copy', 'result', 'Copied result', 'success');
 
@@ -2102,6 +2113,33 @@ export class App {
     }
 
     this.copiedTimer = setTimeout(() => this.copied.set(false), 1400);
+  }
+
+  protected reloadHistoryEntry(entry: QuoteHistoryEntry): void {
+    this.inputText.set(entry.input);
+    this.showQuoteFeedback('paste', 'input', `Reloaded ${this.getRowLabel(entry.input)}`, 'primary');
+    this.inputTextarea()?.nativeElement.focus();
+  }
+
+  protected getHistoryLabel(entry: QuoteHistoryEntry): string {
+    const firstLine = entry.input.split(/\r?\n/, 1)[0].trim();
+    const preview = firstLine.length > 36 ? `${firstLine.slice(0, 36)}…` : firstLine;
+    return preview || '(empty input)';
+  }
+
+  protected getHistoryRowCount(entry: QuoteHistoryEntry): string {
+    const rows = this.getStats(entry.input).rows;
+    return `${rows} ${rows === 1 ? 'row' : 'rows'}`;
+  }
+
+  protected getHistoryAge(copiedAt: number): string {
+    const minutes = Math.floor((Date.now() - copiedAt) / 60_000);
+    if (minutes < 1) return 'Just now';
+    if (minutes < 60) return `${minutes} min ago`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours} hr ago`;
+    const days = Math.floor(hours / 24);
+    return `${days} day${days === 1 ? '' : 's'} ago`;
   }
 
   private showQuoteFeedback(

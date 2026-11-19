@@ -7,9 +7,21 @@ export type ChangelogEntry = {
   commits: string[];
 };
 
-export const APP_VERSION = '1.11.0';
+export const APP_VERSION = '1.12.0';
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.12.0',
+    date: '2026-11-18',
+    title: 'Copied formatter history',
+    summary:
+      'Added a history of copied formatter inputs so previous lists can be restored and formatted again.',
+    changes: [
+      'Saved up to 10 recent distinct inputs when copying formatted results, without duplicating repeated copies of unchanged input.',
+      'Added a readable history panel with first-row previews, row counts, relative times, and a Restore input action.',
+    ],
+    commits: [],
+  },
   {
     version: '1.11.0',
     date: '2026-11-18',

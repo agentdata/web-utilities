@@ -531,6 +531,16 @@ mat-card-title {
   grid-template-columns: 1fr;
 }
 
+.result-action-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.history-button {
+  min-height: 36px;
+}
+
 .editor-button-row {
   display: flex;
   flex-wrap: nowrap;

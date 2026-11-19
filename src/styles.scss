@@ -308,6 +308,54 @@ textarea {
   overflow-x: hidden;
 }
 
+.quote-history-menu.mat-mdc-menu-panel {
+  max-width: min(480px, calc(100vw - 32px));
+  overflow-x: hidden;
+}
+
+.quote-history-popover {
+  width: min(440px, calc(100vw - 32px));
+  max-height: min(480px, calc(100vh - 80px));
+  padding: 10px;
+  overflow-y: auto;
+}
+
+.quote-history-popover__header {
+  padding: 4px 12px 8px;
+  color: #5b6475;
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.quote-history-entry.mat-mdc-menu-item {
+  height: auto;
+  min-height: 58px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  line-height: 1.3;
+}
+
+.quote-history-entry__preview,
+.quote-history-entry__details {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.quote-history-entry__preview {
+  color: #18202f;
+  font-weight: 700;
+}
+
+.quote-history-entry__details {
+  margin-top: 3px;
+  color: #647084;
+  font-size: 0.78rem;
+}
+
 .changelog-popover {
   width: min(720px, calc(100vw - 32px));
   max-height: min(620px, calc(100vh - 80px));

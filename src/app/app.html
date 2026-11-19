@@ -368,17 +368,47 @@
             </label>
 
             <div class="editor-actions editor-actions--result">
-              <button
-                mat-flat-button
-                color="primary"
-                type="button"
-                class="copy-button action-button"
-                [class.copy-button--copied]="copied()"
-                [class.action-button--active]="isQuoteActionActive('copy')"
-                (click)="copyResult()"
-              >
-                {{ copied() ? 'Copied' : 'Copy' }}
-              </button>
+              <div class="result-action-row">
+                <button
+                  mat-flat-button
+                  color="primary"
+                  type="button"
+                  class="copy-button action-button"
+                  [class.copy-button--copied]="copied()"
+                  [class.action-button--active]="isQuoteActionActive('copy')"
+                  (click)="copyResult()"
+                >
+                  {{ copied() ? 'Copied' : 'Copy' }}
+                </button>
+                <button
+                  mat-stroked-button
+                  type="button"
+                  class="history-button"
+                  [matMenuTriggerFor]="quoteHistoryMenu"
+                  [disabled]="quoteHistory().length === 0"
+                  [matTooltip]="quoteHistory().length ? 'Reload a previous input' : 'No copied results yet'"
+                >
+                  History @if (quoteHistory().length) { ({{ quoteHistory().length }}) }
+                </button>
+                <mat-menu #quoteHistoryMenu="matMenu" class="quote-history-menu" xPosition="after">
+                  <div class="quote-history-popover" (click)="$event.stopPropagation()">
+                    <div class="quote-history-popover__header">Copied inputs</div>
+                    @for (entry of quoteHistory(); track $index) {
+                      <button
+                        mat-menu-item
+                        type="button"
+                        class="quote-history-entry"
+                        (click)="reloadHistoryEntry(entry)"
+                      >
+                        <span class="quote-history-entry__preview">{{ getHistoryLabel(entry) }}</span>
+                        <span class="quote-history-entry__details">
+                          {{ getHistoryRowCount(entry) }} · {{ getHistoryAge(entry.copiedAt) }} · Restore input
+                        </span>
+                      </button>
+                    }
+                  </div>
+                </mat-menu>
+              </div>
               <div class="controls">
                 <mat-radio-group
                   class="quote-options"
